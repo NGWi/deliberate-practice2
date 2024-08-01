@@ -10,11 +10,11 @@ def balance(string)
   puts string
   closing = {"]"=>0,")"=>1,"}"=>2, ">"=>3}
   opening = ["[","(","{","<"]
-  looking_for = nil
-  found_i = nil
   index = 0
   length = string.length
   while index < length
+    looking_for = nil
+    found_i = nil
     while index < length
       char = string[index]
       if closing[char]
@@ -62,6 +62,7 @@ def balance(string)
       puts "NOT BALANCED"
       return
     end
+    puts "String left: " + string
   end
   puts "BALANCED"
 end
