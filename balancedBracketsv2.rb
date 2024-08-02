@@ -1,5 +1,7 @@
 # Write a function that takes in a string of code with parentheses, square brackets, and curly brackets, and checks if the code is balanced with correct bracket syntax.
 
+# A relatively short and straightforward solution in O(n):
+
 example_a = "(x+3)[y{3}(z]"
 example_b = "([[{}]])"
 example_c = ""
