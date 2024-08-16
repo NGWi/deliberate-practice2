@@ -12,9 +12,6 @@ require 'stringio'
 example_a = "aaabccddd"
 example_b = ""
 example_c = "abcddcba"
-def match(s, index)
-
-end
     
 def superReducedString(s)
     # Write your code here
