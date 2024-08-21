@@ -32,7 +32,7 @@ loop do
   STDERR.puts "zombies_nexts: " + zombies_nexts.to_s
 
   shortest_times = []
-  human_coords.each_with_index { |set, index|
+  human_coords.each { |set|
     shortest_time = nil
     human_x = set[0]
     human_y = set[1]
