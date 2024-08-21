@@ -2,4 +2,4 @@
 
 const a = "Two";
 const b = "words";
-console.log(a + " " + b);
+console.log(a.toUpperCase() + " " + b.toUpperCase(``));
