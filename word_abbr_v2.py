@@ -1,4 +1,4 @@
-# Educative's official solution (23 vs. 30 lines of code):
+# Educative's official solution (23 vs. 29 lines of code):
 def valid_word_abbreviation(word, abbr):
     word_index, abbr_index = 0, 0
 

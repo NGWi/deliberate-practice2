@@ -32,5 +32,5 @@ def valid_word_abbreviation(word, abbr):
         return False
       index_w += 1
       index_a += 1
-    else: 
+    else: # Unnecessary
       return True
