@@ -236,12 +236,14 @@ loop do
     freeze = factory[3]
     needed = 0
     enemy_dist = 21
-    enemy_troops[id].each { |troop| 
-      needed += troop[2]
-      if troop[3] < enemy_dist
-        enemy_dist = troop[3]
-      end 
-    }
+    if enemy_troops[id]
+      enemy_troops[id].each { |troop| 
+        needed += troop[2]
+        if troop[3] < enemy_dist
+          enemy_dist = troop[3]
+        end 
+      }
+    end
     if enemy_bombs[id]
       enemy_bombs[id].each { |bomb|
         if needed > 0
