@@ -403,6 +403,7 @@ loop do
   all_factories.sort_by! { |factory| factory[2].to_f / (factory[4] * (factory[5] + 1)) }
 
   # Capture all factories possible, in order of priority, using puts commands, as spelled out in the instructions, but we want to make sure that a factory does not remain with additional_needed > 0
+  cl = ""
   all_factories.each { |factory|
     id = factory[0]
     cyborgs = factory[1]
@@ -411,8 +412,13 @@ loop do
     additional_needed = factory[4]
     closest = factory[5]
     if additional_needed > 0
-      puts "MOVE #{id} #{additional_needed} #{closest}"
+      cl += "MOVE #{id} #{additional_needed} #{closest};"
       additional_needed = 0
     end
   }
+  if cl != ""
+    puts cl.chop()
+  else
+    puts "WAIT"
+  end
 end
