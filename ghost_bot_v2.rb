@@ -158,6 +158,7 @@ loop do
     end
     additional_needed = needed - (cyborgs + will_produce)
     factory << additional_needed
+    STDERR.puts "Factory after line 160: #{factory}"
   }
 
   enemy_factories.each { |factory|
@@ -197,6 +198,7 @@ loop do
     end
     additional_needed = needed - (cyborgs + will_produce)
     factory << additional_needed
+    STDERR.puts "Factory after line 200: #{factory}"
   }
 
   neutral_factories.each { |factory|
@@ -228,6 +230,7 @@ loop do
     end
     additional_needed = needed
     factory << additional_needed
+    STDERR.puts "Factory after line 233: #{factory}"
   }
 
   # For each factory, find the closest factory or factories that could provide the additional_needed
@@ -240,6 +243,7 @@ loop do
       our_factories.each { |other_factory|
         other_id = other_factory[0]
         if other_id != id
+          extra_cyborgs = 0
           if other_factory[4] < 0
             extra_cyborgs -= other_factory[4]
           end
@@ -266,6 +270,7 @@ loop do
       closest_fact = nil
       our_factories.each { |other_factory|
         other_id = other_factory[0]
+        extra_cyborgs = 0
         if other_factory[4] < 0
           extra_cyborgs -= other_factory[4]
         end
@@ -291,6 +296,7 @@ loop do
       closest_fact = nil
       our_factories.each { |other_factory|
         other_id = other_factory[0]
+        extra_cyborgs = 0
         if other_factory[4] < 0
           extra_cyborgs -= other_factory[4]
         end
@@ -308,7 +314,8 @@ loop do
     end
   }
 
-  all_factories = our_factories + enemy_factories + neutral_factories
+
+  all_factories = (our_factories + enemy_factories + neutral_factories).select { |factory| factory[5] }
   all_factories.sort_by! { |factory| factory[2].to_f / (factory[4] * (factory[5] + 1)) }
 
   # Capture all factories possible, in order of priority, using puts commands, as spelled out in the instructions, but we want to make sure that a factory does not remain with additional_needed > 0
@@ -321,7 +328,7 @@ loop do
     additional_needed = factory[4]
     closest = factory[5]
     if additional_needed > 0
-      cl += "MOVE #{id} #{additional_needed} #{closest};"
+      cl += "MOVE #{closest} #{id}#{additional_needed};"
       additional_needed = 0
     end
   }
