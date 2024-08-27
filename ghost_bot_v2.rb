@@ -158,7 +158,7 @@ loop do
     end
     additional_needed = needed - (cyborgs + will_produce)
     factory << additional_needed
-    STDERR.puts "Factory after line 160: #{factory}"
+    # STDERR.puts "Factory after line 160: #{factory}"
   }
 
   enemy_factories.each { |factory|
@@ -198,7 +198,7 @@ loop do
     end
     additional_needed = needed - (cyborgs + will_produce)
     factory << additional_needed
-    STDERR.puts "Factory after line 200: #{factory}"
+    # STDERR.puts "Factory after line 200: #{factory}"
   }
 
   neutral_factories.each { |factory|
@@ -230,7 +230,7 @@ loop do
     end
     additional_needed = needed
     factory << additional_needed
-    STDERR.puts "Factory after line 233: #{factory}"
+    # STDERR.puts "Factory after line 233: #{factory}"
   }
 
   # For each factory, find the closest factory or factories that could provide the additional_needed
@@ -258,23 +258,32 @@ loop do
       }
       if closest_fact
         factory << closest_fact
+        factory << closest_dist
+        # Update closest_fact's cyborgs value in the our_factories array to be cyborgs - additional_needed
+        our_factories.find { |f| f[0] == closest_fact }[1] -= additional_needed
       end
     end
   }
 
   enemy_factories.each { |factory|
     id = factory[0]
+    production = factory[2]
     additional_needed = factory[4]
     if additional_needed > 0
       closest_dist = 21
       closest_fact = nil
+      bombing = false
       our_factories.each { |other_factory|
         other_id = other_factory[0]
         extra_cyborgs = 0
         if other_factory[4] < 0
           extra_cyborgs -= other_factory[4]
         end
-        if extra_cyborgs >= additional_needed
+        if (additional_needed + production) >= 10 && production > 0 && bombs > 0 && second <= 0
+          bombing = true
+          STDERR.puts "bombing #{factory}"
+        end
+        if extra_cyborgs >= additional_needed || bombing
           dist = link_hash[id][other_id]
           if dist && dist < closest_dist
             closest_dist = dist
@@ -282,8 +291,11 @@ loop do
           end
         end
       }
-      if closest_fact
+      if bombing
+        factory << "BOMB #{closest_fact}"
+      elsif closest_fact
         factory << closest_fact
+        factory << closest_dist
       end
     end
   }
@@ -310,13 +322,17 @@ loop do
       }
       if closest_fact
         factory << closest_fact
+        factory << closest_dist
       end
     end
   }
 
 
-  all_factories = (our_factories + enemy_factories + neutral_factories).select { |factory| factory[5] }
-  all_factories.sort_by! { |factory| factory[2].to_f / (factory[4] * (factory[5] + 1)) }
+  all_factories = (our_factories + enemy_factories + neutral_factories).select { |factory|
+    factory[7] = (factory == our_factories ? 1 : (factory == enemy_factories ? -1 : 0))
+    factory[4] && factory[5]
+  }
+  all_factories.sort_by! { |factory| factory[2].to_f / (factory[4] * (factory[6] + 1)) }
 
   # Capture all factories possible, in order of priority, using puts commands, as spelled out in the instructions, but we want to make sure that a factory does not remain with additional_needed > 0
   cl = ""
@@ -327,7 +343,13 @@ loop do
     freeze = factory[3]
     additional_needed = factory[4]
     closest = factory[5]
-    if additional_needed > 0
+    closest_dist = factory[6]
+    ownership = factory[7]
+    if closest[0] == "B"
+      cl += closest + " #{id};"
+      bombs -= 1 
+      second = 5
+    elsif additional_needed > 0
       cl += "MOVE #{closest} #{id} #{additional_needed};"
       additional_needed = 0
     end
@@ -337,6 +359,8 @@ loop do
   else
     puts "WAIT"
   end
+  STDERR.puts "Bombs: #{bombs}"
+  second -= 1
 end
 
 # #
