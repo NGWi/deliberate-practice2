@@ -328,7 +328,7 @@ loop do
     additional_needed = factory[4]
     closest = factory[5]
     if additional_needed > 0
-      cl += "MOVE #{closest} #{id}#{additional_needed};"
+      cl += "MOVE #{closest} #{id} #{additional_needed};"
       additional_needed = 0
     end
   }
