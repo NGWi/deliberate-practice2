@@ -55,12 +55,12 @@ loop do
     if entity_type == "FACTORY"
       value = arg_3.to_f / (arg_2 + 1)
       if arg_1 == 1
-        our_factories << [entity_id, arg_2, arg_3]
+        our_factories << [entity_id, arg_2, arg_3, arg_4]
         if !hq_id || arg_2 > entity_hash[hq_id][2]
           hq_id = entity_id
         end
       elsif arg_1 == -1
-        enemy_factories << [entity_id, arg_2, arg_3]
+        enemy_factories << [entity_id, arg_2, arg_3, arg_4]
         if arg_3 > 0 && (!enemy_hq_id || arg_2 > entity_hash[enemy_hq_id][2])
           enemy_hq_id = entity_id
         end
@@ -120,6 +120,7 @@ loop do
   # To debug: STDERR.puts "Debug messages..."
   # Needed loops
   our_factories.each { |factory|
+    STDERR.puts "#{factory}"
     id = factory[0]
     cyborgs = factory[1]
     production = factory[2]
@@ -149,6 +150,7 @@ loop do
         needed -= troop[2]
       }
     end
+    STDERR.puts "factory:#{id} enemy_dist:#{enemy_dist} freeze:#{freeze}"
     if enemy_dist < freeze
       will_produce = 0
     else
