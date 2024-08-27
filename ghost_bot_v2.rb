@@ -242,17 +242,21 @@ loop do
         enemy_dist = troop[3]
       end 
     }
-    enemy_bombs[id].each { |bomb|
-      if needed > 0
-        needed += 10
-      end
-      if bomb[2] < enemy_dist
-        enemy_dist = troop[2]
-      end 
-    }
-    our_troops[id].each { |troop|
-      needed -= troop[2]
-    }
+    if enemy_bombs[id]
+      enemy_bombs[id].each { |bomb|
+        if needed > 0
+          needed += 10
+        end
+        if bomb[2] < enemy_dist
+          enemy_dist = troop[2]
+        end 
+      }
+    end
+    if our_troops[id]  
+      our_troops[id].each { |troop|
+        needed -= troop[2]
+      }
+    end
     if enemy_dist < freeze
       will_produce = 0
     else
@@ -269,23 +273,29 @@ loop do
     freeze = factory[3]
     needed = cyborgs + 1
     our_dist = 21
-    our_troops[id].each { |troop| 
-      needed -= troop[2]
-      if troop[3] < our_dist
-        our_dist = troop[3]
-      end
-    }
-    our_bombs[id].each { |bomb|
-      if needed > 0
-        needed -= 10
-      end
-      if bomb[2] < our_dist
-        our_dist = bomb[2]
-      end
-    }
-    enemy_troops[id].each { |troop|
-      needed += troop[2]
-    }
+    if our_troops[id]
+      our_troops[id].each { |troop| 
+        needed -= troop[2]
+        if troop[3] < our_dist
+          our_dist = troop[3]
+        end
+      }
+    end
+    if our_bombs[id]
+      our_bombs[id].each { |bomb|
+        if needed > 0
+          needed -= 10
+        end
+        if bomb[2] < our_dist
+          our_dist = bomb[2]
+        end
+      }
+    end
+    if enemy_troops[id]
+      enemy_troops[id].each { |troop|
+        needed += troop[2]
+      }
+    end
     if our_dist < freeze
       will_produce = 0
     else
@@ -302,22 +312,26 @@ loop do
     needed = cyborgs + 1
     our_dist = 21
     enemy_dist = 21
-    our_troops[id].each { |troop|
-      needed -= troop[2]
-      if troop[3] < our_dist
-        our_dist = troop[3]
-      end
-    }
-    enemy_troops[id].each { |troop|
-      if troop[3] < enemy_dist
-        enemy_dist = troop[3]
-      end
-      if troop[3] < our_dist
+    if our_troops[id]
+      our_troops[id].each { |troop|
         needed -= troop[2]
-      else
-        needed += troop[2]
-      end
-    }
+        if troop[3] < our_dist
+          our_dist = troop[3]
+        end
+      }
+    end
+    if enemy_troops[id]   
+      enemy_troops[id].each { |troop|
+        if troop[3] < enemy_dist
+          enemy_dist = troop[3]
+        end
+        if troop[3] < our_dist
+          needed -= troop[2]
+        else
+          needed += troop[2]
+        end
+      }
+    end
     additional_needed = needed
     factory << additional_needed
   }
@@ -332,14 +346,16 @@ loop do
       closest_fact = nil
       our_factories.each { |other_factory|
         other_id = other_factory[0]
-        if other_factory[-1] < 0
-          extra_cyborgs -= other_factory[-1]
-        end
-        if other_id != id && extra_cyborgs >= additional_needed
-          dist = link_hash[id][other_id]
-          if dist && dist < closest_dist
-            closest_dist = dist
-            closest_fact = other_id
+        if other_id != id
+          if other_factory[-1] < 0
+            extra_cyborgs -= other_factory[-1]
+          end
+          if extra_cyborgs >= additional_needed
+            dist = link_hash[id][other_id]
+            if dist && dist < closest_dist
+              closest_dist = dist
+              closest_fact = other_id
+            end
           end
         end
       }
