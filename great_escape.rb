@@ -208,8 +208,8 @@ end
 
 def move_from_top(player_arr, my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
   STDERR.puts "func move_from_top (my_v_dir #{my_v_dir}. #{my_x},#{my_y}=>#{target_x},#{target_y})"
-  right = my_next(player_arr, target_x, target_y, 1, wall_hash )
-  left = my_next(player_arr, target_x, target_y, -1, wall_hash )
+  right = my_next(player_arr, my_x, my_y, 1, wall_hash )
+  left = my_next(player_arr, my_x, my_y, -1, wall_hash )
   if target_x < my_x && left == "Open"
     puts "LEFT"
   elsif target_x > my_x && right == "Open"
