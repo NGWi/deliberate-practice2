@@ -118,7 +118,7 @@ def wall_lookup(x, y, wall_hash)
   wall
 end
 
-def opp_next(player_arr, opp_x, opp_y, opp_dir, wall_hash )
+def opp_next( opp_x, opp_y, opp_dir, wall_hash )
   opp_facing_edge_x = opp_x.dup
   if opp_dir == 1
     opp_facing_edge_x = opp_x + opp_dir
@@ -141,7 +141,7 @@ def block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
   if opp_dir == -1
     block_x = 0
   end
-  if opp_next(player_arr, opp_x, opp_y, opp_dir, wall_hash ) == "Open"
+  if opp_next( opp_x, opp_y, opp_dir, wall_hash ) == "Open"
     if opp_y < 8 && !wall_lookup(opp_x + block_x, opp_y + 1, wall_hash).include?("V") && !wall_lookup(opp_x + block_x - 1, opp_y + 1, wall_hash).include?("H")
       puts "#{opp_x + block_x} #{opp_y} V"
     elsif opp_y > 0 && !wall_lookup(opp_x + block_x, opp_y - 1, wall_hash).include?("V") && !wall_lookup(opp_x + block_x - 1, opp_y, wall_hash).include?("H")
@@ -192,6 +192,41 @@ def my_next( target_x, target_y, my_dir, wall_hash )
   end
 end
 
+# def move_from_top( my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
+#   STDERR.puts "func move_from_top (my_v_dir #{my_v_dir}. #{my_x},#{my_y}=>#{target_x},#{target_y})"
+#   right = my_next( my_x, my_y, 1, wall_hash )
+#   left = my_next( my_x, my_y, -1, wall_hash )
+# end
+
+
+# def move( my_dir, my_x, my_y, target_x, target_y, wall_hash)
+#   target_x += my_dir
+#   STDERR.puts "func move (my_dir #{my_dir}. #{my_x},#{my_y}=>#{target_x},#{target_y})"
+#   right = my_next( my_x, my_y, 1, wall_hash )
+#   left = my_next( my_x, my_y, -1, wall_hash )
+#   if target_y == my_y && target_x > my_x  && right == "Open"
+#     puts "RIGHT"
+#   elsif target_y == my_y && target_x < my_x && left == "Open"
+#     puts "LEFT"
+#   elsif target_y < my_y && my_y > 0 && my_next_from_top( my_x, my_y, -1, wall_hash) == "Open"
+#     puts "UP"
+#   elsif target_y > my_y && my_y < 8 && my_next_from_top( my_x, my_y, 1, wall_hash) == "Open"
+#     puts "DOWN"
+#   elsif my_dir == -1 && left == "Open" # my_dir == 1  && left == "Open" && my_x > 0
+#     puts "LEFT"     # Because otherwise would be boxed in
+#   elsif my_dir == 1 && right == "Open" # my_dir == -1 && right == "Open" && my_x < 8
+#     puts "RIGHT"    # Because otherwise would be boxed in
+#   elsif my_next_from_top( my_x, my_y, -1, wall_hash) == "Open"
+#     puts "UP"
+#   elsif my_next_from_top( my_x, my_y, 1, wall_hash) == "Open"
+#     puts "DOWN"  
+#   else
+#     STDERR.puts "Huh?!"
+#   end
+# end
+
+#---------------------------------------------------------------------------------------
+
 def target_line(my_id)
   target_hash = {}
   new_hash = {}
@@ -233,122 +268,163 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
     if my_next( right_x, right_y, 1, wall_hash ) == "Open" && target_hash["#{right_x},#{right_y}"].nil? && right_x < 9 
       neighbors << {x: right_x, y: right_y}
       target_hash["#{right_x},#{right_y}"] = []
+      if my_paths["#{right_x},#{right_y}"]
+        return {x: right_x, y: right_y}
+      end
     end
     left_x = x - 1
     left_y = y
     if my_next( left_x, left_y, -1, wall_hash ) == "Open" && target_hash["#{left_x},#{left_y}"].nil? && left_x >= 0
       neighbors << {x: left_x, y: left_y}
       target_hash["#{left_x},#{left_y}"] = []
+      if my_paths["#{left_x},#{left_y}"]
+        return {x: left_x, y: left_y}
+      end
     end
     down_x = x
     down_y = y + 1
     if my_next_from_top( down_x, down_y, 1, wall_hash ) == "Open" && target_hash["#{down_x},#{down_y}"].nil? && down_y < 9
       neighbors << {x: down_x, y: down_y}
       target_hash["#{down_x},#{down_y}"] = []
+      if my_paths["#{down_x},#{down_y}"]
+        return {x: down_x, y: down_y}
+      end
     end
     up_x = x
     up_y = y - 1
     if my_next_from_top( up_x, up_y, -1, wall_hash ) == "Open" && target_hash["#{up_x},#{up_y}"].nil? && up_y >= 0
       neighbors << {x: up_x, y: up_y}
       target_hash["#{up_x},#{up_y}"] = []
+      if my_paths["#{up_x},#{up_y}"]
+        return {x: up_x, y: up_y}
+      end
     end
     target_hash[key] = neighbors
   }
-  return target_hash, new_hash
+  return [target_hash, new_hash]
 end
 
-def my_neighbors(my_x, my_y, target_hash, wall_hash)
+def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   x = my_x
   y = my_y
-  my_paths = {}
+  parent = "#{x},#{y}"
   neighbors = {}
   right_x = x + 1
   right_y = y
-  if my_next( right_x, right_y, 1, wall_hash ) == "Open" && right_x < 9
+  if my_next( right_x, right_y, 1, wall_hash ) == "Open" && my_paths["#{right_x},#{right_y}"].nil? && right_x < 9
     my_paths["#{right_x},#{right_y}"] = []
-    neighbors["#{right_x},#{right_y}"] = {x: right_x, y: right_y}
+    neighbors["#{right_x},#{right_y}"] = {x: right_x, y: right_y, parent: parent}
     if target_hash["#{right_x},#{right_y}"]
-      return {x: right_x, y: right_y}
+      return {x: right_x, y: right_y, parent: parent}
     end
   end
   left_x = x - 1
   left_y = y
-  if my_next( left_x, left_y, -1, wall_hash ) == "Open" && left_x >= 0
+  if my_next( left_x, left_y, -1, wall_hash ) == "Open" && my_paths["#{left_x},#{left_y}"].nil? && left_x >= 0
     my_paths["#{left_x},#{left_y}"] = []
-    neighbors["#{left_x},#{left_y}"] = {x: left_x, y: left_y}
+    neighbors["#{left_x},#{left_y}"] = {x: left_x, y: left_y, parent: parent}
     if target_hash["#{left_x},#{left_y}"]
-      return {x: left_x, y: left_y}
+      return {x: left_x, y: left_y, parent: parent}
     end
   end
   down_x = x
   down_y = y + 1
-  if my_next_from_top( down_x, down_y, 1, wall_hash ) == "Open" && down_y < 9
+  if my_next_from_top( down_x, down_y, 1, wall_hash ) == "Open" && my_paths["#{down_x},#{down_y}"].nil? && down_y < 9
     my_paths["#{down_x},#{down_y}"] = []
-    neighbors["#{down_x},#{down_y}"] = {x: down_x, y: down_y}
+    neighbors["#{down_x},#{down_y}"] = {x: down_x, y: down_y, parent: parent}
     if target_hash["#{down_x},#{down_y}"]
-      return {x: down_x, y: down_y}
+      return {x: down_x, y: down_y, parent: parent}
     end
   end
   up_x = x
   up_y = y - 1
-  if my_next_from_top( up_x, up_y, -1, wall_hash ) == "Open" && up_y >= 0
+  if my_next_from_top( up_x, up_y, -1, wall_hash ) == "Open" && my_paths["#{up_x},#{up_y}"].nil? && up_y >= 0
     my_paths["#{up_x},#{up_y}"] = []
-    neighbors["#{up_x},#{up_y}"] = {x: up_x, y: up_y}
+    neighbors["#{up_x},#{up_y}"] = {x: up_x, y: up_y, parent: parent}
     if target_hash["#{up_x},#{up_y}"]
-      return {x: up_x, y: up_y}
+      return {x: up_x, y: up_y, parent: parent}
     end
   end
-  return my_paths, neighbors
+  return [my_paths, neighbors]
 end
 
 def expand_paths(my_paths, neighbors)
   neighbors.each { |key, value|
     x = value[:x]
     y = value[:y]
-    neighbors my_neighbors(x, y, target_hash, wall_hash)
-    if neighbors.length == 1 # only one hash
-      return neighbors
+    routes = my_neighbors(x, y, target_hash, wall_hash)
+    if routes.length == 1 # only one hash
+      return routes
+    else
+      my_paths = routes[0]
+      neighbors = routes[1]
     end
-    my_paths[x: x, y: y] = [
-      neighbors
-    ]
     my_paths[key] = neighbors
   }
-  return my_paths, neighbors
+  return [my_paths, neighbors]
 end
 
-def move_from_top( my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
-  STDERR.puts "func move_from_top (my_v_dir #{my_v_dir}. #{my_x},#{my_y}=>#{target_x},#{target_y})"
-  right = my_next( my_x, my_y, 1, wall_hash )
-  left = my_next( my_x, my_y, -1, wall_hash )
+def find_shortest_path(my_id, my_x, my_y, wall_hash)
+  target_hash, new_hash = target_line(my_id)
+  my_paths = {}
+  routes = my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
+  if routes.length == 1 # only one hash
+    return routes
+  else
+    my_paths = routes[0]
+    neighbors = routes[1]
+  end
+  while neighbors.length > 0
+    target_expansion = expand_target(target_hash, new_hash, my_paths, wall_hash)
+    if target_expansion.length == 1 # only one hash
+      return target_expansion
+    else
+      my_paths = target_expansion[0]
+      neighbors = target_expansion[1]
+    end
+    my_expansion = expand_paths(my_paths, neighbors)
+    if my_expansion.length == 1 # only one hash
+      return my_expansion
+    else
+      my_paths = my_expansion[0]
+      neighbors = my_expansion[1]
+    end
+  end
 end
 
-
-def move( my_dir, my_x, my_y, target_x, target_y, wall_hash)
-  target_x += my_dir
-  STDERR.puts "func move (my_dir #{my_dir}. #{my_x},#{my_y}=>#{target_x},#{target_y})"
-  right = my_next( my_x, my_y, 1, wall_hash )
-  left = my_next( my_x, my_y, -1, wall_hash )
-  if target_y == my_y && target_x > my_x  && right == "Open"
-    puts "RIGHT"
-  elsif target_y == my_y && target_x < my_x && left == "Open"
-    puts "LEFT"
-  elsif target_y < my_y && my_y > 0 && my_next_from_top( my_x, my_y, -1, wall_hash) == "Open"
-    puts "UP"
-  elsif target_y > my_y && my_y < 8 && my_next_from_top( my_x, my_y, 1, wall_hash) == "Open"
-    puts "DOWN"
-  elsif my_dir == -1 && left == "Open" # my_dir == 1  && left == "Open" && my_x > 0
-    puts "LEFT"     # Because otherwise would be boxed in
-  elsif my_dir == 1 && right == "Open" # my_dir == -1 && right == "Open" && my_x < 8
-    puts "RIGHT"    # Because otherwise would be boxed in
-  elsif my_next_from_top( my_x, my_y, -1, wall_hash) == "Open"
-    puts "UP"
-  elsif my_next_from_top( my_x, my_y, 1, wall_hash) == "Open"
-    puts "DOWN"  
+def trace_back(my_id, my_x, my_y, wall_hash)
+  meet_up = find_shortest_path(my_id, my_x, my_y, wall_hash)
+  target_x = meet_up[:x]
+  target_y = meet_up[:y]
+  latest_child = {:x => target_x, :y => target_y}
+  while target_x != my_x || target_y != my_y
+    STDERR.puts "target_x: #{target_x}, target_y: #{target_y}"
+    parent = meet_up[:parent]
+    if parent
+      latest_child = parent
+      meet_up = find_shortest_path(my_id, parent[:x], parent[:y], wall_hash)
+      target_x = meet_up[:x]
+      target_y = meet_up[:y]
+    else
+      break
+    end
+  end
+  return latest_child
+end
+def move_command(my_x, my_y, target_x, target_y)
+  if target_x == my_x && target_y < my_y
+    "UP"
+  elsif target_x == my_x && target_y > my_y
+    "DOWN"
+  elsif target_x < my_x && target_y == my_y
+    "LEFT"
+  elsif target_x > my_x && target_y == my_y
+    "RIGHT"
   else
     STDERR.puts "Huh?!"
   end
 end
+#---------------------------------------------------------------------------------------
 
 wall_hash = {}
 #=======================================================================================
@@ -405,8 +481,9 @@ loop do
 
   target_x = target_x || my_x.dup
   target_y = target_y || my_y.dup
-  switched_search = false
-  moved_out = false
+  # switched_search = false
+  # moved_out = false
+  walling = false
   #---------------------------------------------------------------------------------------
   if my_id == 2
     if my_next_from_top( target_x, target_y, my_v_dir, wall_hash ) == "Blocked"
@@ -414,13 +491,9 @@ loop do
       target_x, target_y = find_gap_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash, -1)
     end
     STDERR.puts "my_v_dir: #{my_v_dir}, my_x: #{my_x}, opp_x: #{opp_x}"
-    walling = false
     my_walls_left = player_arr[my_id][:walls_left]
     if my_walls_left > 0
       walling = block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
-    end
-    if walling == false
-      move_from_top( my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
     end
   #---------------------------------------------------------------------------------------
   else
@@ -429,19 +502,21 @@ loop do
       target_x, target_y = find_gap(player_arr, target_x, target_y, my_dir, wall_hash, -1, switched_search)
     end
     STDERR.puts "my_dir: #{my_dir}, my_x: #{my_x}, opp_x: #{opp_x}"
-    walling = false
     my_walls_left = player_arr[my_id][:walls_left]
     if ((my_dir == 1 && my_x >= opp_x && opp_x >= 0) || (my_dir == -1 && my_x <= opp_x && opp_x >= 0)) && my_walls_left > 0
       walling = block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
     end
-    if walling == false
-       move( my_dir, my_x, my_y, target_x, target_y, wall_hash)
-    end
   end
-  if !forbidding == [] && moved_out
-    STDERR.puts "Forbidding."
-    wall = wall_lookup(forbidding[0],forbidding[1]) 
-    wall += forbidding[2]
-    wall_hash["#{forbidding[0]},#{forbidding[1]}"] = forbidding[2]
+
+  if walling == false
+    latest_child = trace_back(my_id, my_x, my_y, wall_hash)
+    puts move_command(my_x, my_y, latest_child[:x], latest_child[:y])
   end
+
+  # if !forbidding == [] && moved_out
+  #   STDERR.puts "Forbidding."
+  #   wall = wall_lookup(forbidding[0],forbidding[1]) 
+  #   wall += forbidding[2]
+  #   wall_hash["#{forbidding[0]},#{forbidding[1]}"] = forbidding[2]
+  # end
 end
