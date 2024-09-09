@@ -135,7 +135,7 @@ def opp_next( opp_x, opp_y, opp_dir, wall_hash )
   end
 end
 
-def block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
+def block_opp( opp_x, opp_y, wall_hash, opp_dir)
   STDERR.puts "Calculating how to block enemy."
   block_x = opp_dir
   if opp_dir == -1
@@ -493,7 +493,7 @@ loop do
     STDERR.puts "my_v_dir: #{my_v_dir}, my_x: #{my_x}, opp_x: #{opp_x}"
     my_walls_left = player_arr[my_id][:walls_left]
     if my_walls_left > 0
-      walling = block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
+      walling = block_opp( opp_x, opp_y, wall_hash, opp_dir)
     end
   #---------------------------------------------------------------------------------------
   else
@@ -504,7 +504,7 @@ loop do
     STDERR.puts "my_dir: #{my_dir}, my_x: #{my_x}, opp_x: #{opp_x}"
     my_walls_left = player_arr[my_id][:walls_left]
     if ((my_dir == 1 && my_x >= opp_x && opp_x >= 0) || (my_dir == -1 && my_x <= opp_x && opp_x >= 0)) && my_walls_left > 0
-      walling = block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
+      walling = block_opp( opp_x, opp_y, wall_hash, opp_dir)
     end
   end
 
