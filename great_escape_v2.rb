@@ -174,7 +174,6 @@ def my_next_from_top( target_x, target_y, my_v_dir, wall_hash )
   end
 end
 
-
 def my_next( target_x, target_y, my_dir, wall_hash )
   facing_edge_x = target_x.dup
   if my_dir == 1
@@ -255,6 +254,7 @@ def target_line(my_id)
       x += 1
     }
   end
+  STDERR.puts target_hash.inspect, new_hash.inspect
   return target_hash, new_hash
 end
 
@@ -348,11 +348,11 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   return [my_paths, neighbors]
 end
 
-def expand_paths(my_paths, neighbors)
+def expand_paths(my_paths, neighbors, target_hash, wall_hash)
   neighbors.each { |key, value|
     x = value[:x]
     y = value[:y]
-    routes = my_neighbors(x, y, target_hash, wall_hash)
+    routes = my_neighbors(x, y, my_paths, target_hash, wall_hash)
     if routes.length == 1 # only one hash
       return routes
     else
@@ -382,7 +382,7 @@ def find_shortest_path(my_id, my_x, my_y, wall_hash)
       my_paths = target_expansion[0]
       neighbors = target_expansion[1]
     end
-    my_expansion = expand_paths(my_paths, neighbors)
+    my_expansion = expand_paths(my_paths, neighbors, target_hash, wall_hash)
     if my_expansion.length == 1 # only one hash
       return my_expansion
     else
@@ -394,6 +394,7 @@ end
 
 def trace_back(my_id, my_x, my_y, wall_hash)
   meet_up = find_shortest_path(my_id, my_x, my_y, wall_hash)
+  STDERR.puts "Found meet_up: #{meet_up}!"
   target_x = meet_up[:x]
   target_y = meet_up[:y]
   latest_child = {:x => target_x, :y => target_y}
@@ -411,6 +412,7 @@ def trace_back(my_id, my_x, my_y, wall_hash)
   end
   return latest_child
 end
+
 def move_command(my_x, my_y, target_x, target_y)
   if target_x == my_x && target_y < my_y
     "UP"
