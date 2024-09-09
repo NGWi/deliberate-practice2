@@ -118,7 +118,7 @@ def wall_lookup(x, y, wall_hash)
   wall
 end
 
-def opp_next(player_arr, opp_x, opp_y, opp_dir, wall_hash )
+def opp_next( opp_x, opp_y, opp_dir, wall_hash )
   opp_facing_edge_x = opp_x.dup
   if opp_dir == 1
     opp_facing_edge_x = opp_x + opp_dir
@@ -135,13 +135,13 @@ def opp_next(player_arr, opp_x, opp_y, opp_dir, wall_hash )
   end
 end
 
-def block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
+def block_opp( opp_x, opp_y, wall_hash, opp_dir)
   STDERR.puts "Calculating how to block enemy."
   block_x = opp_dir
   if opp_dir == -1
     block_x = 0
   end
-  if opp_next(player_arr, opp_x, opp_y, opp_dir, wall_hash ) == "Open"
+  if opp_next( opp_x, opp_y, opp_dir, wall_hash ) == "Open"
     if opp_y < 8 && !wall_lookup(opp_x + block_x, opp_y + 1, wall_hash).include?("V") && !wall_lookup(opp_x + block_x - 1, opp_y + 1, wall_hash).include?("H")
       puts "#{opp_x + block_x} #{opp_y} V"
     elsif opp_y > 0 && !wall_lookup(opp_x + block_x, opp_y - 1, wall_hash).include?("V") && !wall_lookup(opp_x + block_x - 1, opp_y, wall_hash).include?("H")
@@ -157,7 +157,7 @@ end
 
 #---------------------------------------------------------------------------------------
 
-def my_next_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash )
+def my_next_from_top( target_x, target_y, my_v_dir, wall_hash )
   facing_edge_y = target_y.dup
   if my_v_dir == 1
     facing_edge_y = target_y + my_v_dir
@@ -181,7 +181,7 @@ def find_gap_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash, searc
     search_dir = -search_dir
   end
   STDERR.puts "Checking: #{target_x}, #{target_y}"
-  if my_next_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash ) == "Blocked"
+  if my_next_from_top( target_x, target_y, my_v_dir, wall_hash ) == "Blocked"
     find_gap_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash, search_dir)
   else
     STDERR.puts "Gap found: #{target_x}, #{target_y}"
@@ -189,7 +189,7 @@ def find_gap_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash, searc
   end
 end
 
-def my_next(player_arr, target_x, target_y, my_dir, wall_hash )
+def my_next(target_x, target_y, my_dir, wall_hash )
   facing_edge_x = target_x.dup
   if my_dir == 1
     facing_edge_x = target_x + my_dir
@@ -206,10 +206,10 @@ def my_next(player_arr, target_x, target_y, my_dir, wall_hash )
   end
 end
 
-def move_from_top(player_arr, my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
+def move_from_top( my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
   STDERR.puts "func move_from_top (my_v_dir #{my_v_dir}. #{my_x},#{my_y}=>#{target_x},#{target_y})"
-  right = my_next(player_arr, my_x, my_y, 1, wall_hash )
-  left = my_next(player_arr, my_x, my_y, -1, wall_hash )
+  right = my_next(my_x, my_y, 1, wall_hash )
+  left = my_next(my_x, my_y, -1, wall_hash )
   if target_x < my_x && left == "Open"
     puts "LEFT"
   elsif target_x > my_x && right == "Open"
@@ -234,7 +234,7 @@ end
 #---------------------------------------------------------------------------------------
 
 
-def find_gap(player_arr, target_x, target_y, my_dir, wall_hash, search_dir, switched_search)
+def find_gap( player_arr, target_x, target_y, my_dir, wall_hash, search_dir, switched_search)
   STDERR.puts "Search_dir: #{search_dir}"
   if (search_dir == -1 && target_y > 0) || (search_dir == 1 && target_y < 8)
     target_y = target_y + search_dir
@@ -250,7 +250,7 @@ def find_gap(player_arr, target_x, target_y, my_dir, wall_hash, search_dir, swit
     return target_x, target_y
   end
   STDERR.puts "Checking: #{target_x}, #{target_y}"
-  open = my_next(player_arr, target_x, target_y, my_dir, wall_hash )
+  open = my_next(target_x, target_y, my_dir, wall_hash )
   if open == "Open"
     STDERR.puts "Gap found: #{target_x}, #{target_y}"
     return target_x, target_y
@@ -259,26 +259,26 @@ def find_gap(player_arr, target_x, target_y, my_dir, wall_hash, search_dir, swit
   end
 end
 
-def move(player_arr, my_dir, my_x, my_y, target_x, target_y, wall_hash)
+def move( my_dir, my_x, my_y, target_x, target_y, wall_hash)
   target_x += my_dir
   STDERR.puts "func move (my_dir #{my_dir}. #{my_x},#{my_y}=>#{target_x},#{target_y})"
-  right = my_next(player_arr, my_x, my_y, 1, wall_hash )
-  left = my_next(player_arr, my_x, my_y, -1, wall_hash )
+  right = my_next(my_x, my_y, 1, wall_hash )
+  left = my_next(my_x, my_y, -1, wall_hash )
   if target_y == my_y && target_x > my_x  && right == "Open"
     puts "RIGHT"
   elsif target_y == my_y && target_x < my_x && left == "Open"
     puts "LEFT"
-  elsif target_y < my_y && my_y > 0 && my_next_from_top(player_arr, my_x, my_y, -1, wall_hash) == "Open"
+  elsif target_y < my_y && my_y > 0 && my_next_from_top( my_x, my_y, -1, wall_hash) == "Open"
     puts "UP"
-  elsif target_y > my_y && my_y < 8 && my_next_from_top(player_arr, my_x, my_y, 1, wall_hash) == "Open"
+  elsif target_y > my_y && my_y < 8 && my_next_from_top( my_x, my_y, 1, wall_hash) == "Open"
     puts "DOWN"
   elsif my_dir == -1 && left == "Open" # my_dir == 1  && left == "Open" && my_x > 0
     puts "LEFT"     # Because otherwise would be boxed in
   elsif my_dir == 1 && right == "Open" # my_dir == -1 && right == "Open" && my_x < 8
     puts "RIGHT"    # Because otherwise would be boxed in
-  elsif my_next_from_top(player_arr, my_x, my_y, -1, wall_hash) == "Open"
+  elsif my_next_from_top( my_x, my_y, -1, wall_hash) == "Open"
     puts "UP"
-  elsif my_next_from_top(player_arr, my_x, my_y, 1, wall_hash) == "Open"
+  elsif my_next_from_top( my_x, my_y, 1, wall_hash) == "Open"
     puts "DOWN"  
   else
     STDERR.puts "Huh?!"
@@ -345,7 +345,7 @@ loop do
   moved_out = false
   #---------------------------------------------------------------------------------------
   if my_id == 2
-    if my_next_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash ) == "Blocked"
+    if my_next_from_top( target_x, target_y, my_v_dir, wall_hash ) == "Blocked"
       STDERR.puts "Blocked"
       target_x, target_y = find_gap_from_top(player_arr, target_x, target_y, my_v_dir, wall_hash, -1)
     end
@@ -353,14 +353,14 @@ loop do
     walling = false
     my_walls_left = player_arr[my_id][:walls_left]
     if my_walls_left > 0
-      walling = block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
+      walling = block_opp( opp_x, opp_y, wall_hash, opp_dir)
     end
     if walling == false
-      move_from_top(player_arr, my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
+      move_from_top( my_v_dir, my_x, my_y, target_x, target_y, wall_hash)
     end
   #---------------------------------------------------------------------------------------
   else
-    if my_next(player_arr, target_x, target_y, my_dir, wall_hash ) == "Blocked"
+    if my_next(target_x, target_y, my_dir, wall_hash ) == "Blocked"
       STDERR.puts "Blocked"
       target_x, target_y = find_gap(player_arr, target_x, target_y, my_dir, wall_hash, -1, switched_search)
     end
@@ -368,10 +368,10 @@ loop do
     walling = false
     my_walls_left = player_arr[my_id][:walls_left]
     if ((my_dir == 1 && my_x >= opp_x && opp_x >= 0) || (my_dir == -1 && my_x <= opp_x && opp_x >= 0)) && my_walls_left > 0
-      walling = block_opp(player_arr, opp_x, opp_y, wall_hash, opp_dir)
+      walling = block_opp( opp_x, opp_y, wall_hash, opp_dir)
     end
     if walling == false
-       move(player_arr, my_dir, my_x, my_y, target_x, target_y, wall_hash)
+       move( my_dir, my_x, my_y, target_x, target_y, wall_hash)
     end
   end
   if !forbidding == [] && moved_out
