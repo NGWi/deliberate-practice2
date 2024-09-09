@@ -265,7 +265,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
     neighbors = []
     right_x = x + 1
     right_y = y
-    if my_next( right_x, right_y, 1, wall_hash ) == "Open" && target_hash["#{right_x},#{right_y}"].nil? && right_x < 9 
+    if  target_hash["#{right_x},#{right_y}"].nil? && right_x < 9 && my_next( right_x, right_y, 1, wall_hash ) == "Open"
       neighbors << {x: right_x, y: right_y}
       target_hash["#{right_x},#{right_y}"] = []
       if my_paths["#{right_x},#{right_y}"]
@@ -274,7 +274,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
     end
     left_x = x - 1
     left_y = y
-    if my_next( left_x, left_y, -1, wall_hash ) == "Open" && target_hash["#{left_x},#{left_y}"].nil? && left_x >= 0
+    if target_hash["#{left_x},#{left_y}"].nil? && left_x >= 0 && my_next( left_x, left_y, -1, wall_hash ) == "Open"
       neighbors << {x: left_x, y: left_y}
       target_hash["#{left_x},#{left_y}"] = []
       if my_paths["#{left_x},#{left_y}"]
@@ -283,7 +283,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
     end
     down_x = x
     down_y = y + 1
-    if my_next_from_top( down_x, down_y, 1, wall_hash ) == "Open" && target_hash["#{down_x},#{down_y}"].nil? && down_y < 9
+    if target_hash["#{down_x},#{down_y}"].nil? && down_y < 9 && my_next_from_top( down_x, down_y, 1, wall_hash ) == "Open"
       neighbors << {x: down_x, y: down_y}
       target_hash["#{down_x},#{down_y}"] = []
       if my_paths["#{down_x},#{down_y}"]
@@ -292,7 +292,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
     end
     up_x = x
     up_y = y - 1
-    if my_next_from_top( up_x, up_y, -1, wall_hash ) == "Open" && target_hash["#{up_x},#{up_y}"].nil? && up_y >= 0
+    if target_hash["#{up_x},#{up_y}"].nil? && up_y >= 0 && my_next_from_top( up_x, up_y, -1, wall_hash ) == "Open"
       neighbors << {x: up_x, y: up_y}
       target_hash["#{up_x},#{up_y}"] = []
       if my_paths["#{up_x},#{up_y}"]
@@ -311,7 +311,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   neighbors = {}
   right_x = x + 1
   right_y = y
-  if my_next( right_x, right_y, 1, wall_hash ) == "Open" && my_paths["#{right_x},#{right_y}"].nil? && right_x < 9
+  if my_paths["#{right_x},#{right_y}"].nil? && right_x < 9 && my_next( right_x, right_y, 1, wall_hash ) == "Open"
     my_paths["#{right_x},#{right_y}"] = []
     neighbors["#{right_x},#{right_y}"] = {x: right_x, y: right_y, parent: parent}
     if target_hash["#{right_x},#{right_y}"]
@@ -320,7 +320,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   end
   left_x = x - 1
   left_y = y
-  if my_next( left_x, left_y, -1, wall_hash ) == "Open" && my_paths["#{left_x},#{left_y}"].nil? && left_x >= 0
+  if my_paths["#{left_x},#{left_y}"].nil? && left_x >= 0 && my_next( left_x, left_y, -1, wall_hash ) == "Open"
     my_paths["#{left_x},#{left_y}"] = []
     neighbors["#{left_x},#{left_y}"] = {x: left_x, y: left_y, parent: parent}
     if target_hash["#{left_x},#{left_y}"]
@@ -329,7 +329,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   end
   down_x = x
   down_y = y + 1
-  if my_next_from_top( down_x, down_y, 1, wall_hash ) == "Open" && my_paths["#{down_x},#{down_y}"].nil? && down_y < 9
+  if my_paths["#{down_x},#{down_y}"].nil? && down_y < 9 && my_next_from_top( down_x, down_y, 1, wall_hash ) == "Open"
     my_paths["#{down_x},#{down_y}"] = []
     neighbors["#{down_x},#{down_y}"] = {x: down_x, y: down_y, parent: parent}
     if target_hash["#{down_x},#{down_y}"]
@@ -338,7 +338,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   end
   up_x = x
   up_y = y - 1
-  if my_next_from_top( up_x, up_y, -1, wall_hash ) == "Open" && my_paths["#{up_x},#{up_y}"].nil? && up_y >= 0
+  if my_paths["#{up_x},#{up_y}"].nil? && up_y >= 0 && my_next_from_top( up_x, up_y, -1, wall_hash ) == "Open"
     my_paths["#{up_x},#{up_y}"] = []
     neighbors["#{up_x},#{up_y}"] = {x: up_x, y: up_y, parent: parent}
     if target_hash["#{up_x},#{up_y}"]
