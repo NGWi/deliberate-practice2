@@ -361,6 +361,7 @@ def expand_paths(my_paths, neighbors, target_hash, wall_hash)
     x = value[:x]
     y = value[:y]
     routes = my_neighbors(x, y, my_paths, target_hash, wall_hash)
+    STDERR.puts "Routes: #{routes[0]}, #{routes[1]}"
     if routes.length == 1 # only one hash
       STDERR.puts "My_neighbors passed meet up to expand_paths"
       return routes
@@ -377,6 +378,7 @@ end
 def find_shortest_path(my_id, my_x, my_y, wall_hash)
   target_hash, new_hash = target_line(my_id)
   my_paths = {}
+  neighbors = []
   routes = my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   if routes.length == 1 # only one hash
     STDERR.puts "My_neighbors passed meet up to find_shortest_path"
@@ -384,9 +386,11 @@ def find_shortest_path(my_id, my_x, my_y, wall_hash)
   else
     my_paths = routes[0]
     neighbors = routes[1]
+    STDERR.puts "My_paths, neighbors:", my_paths.inspect, neighbors.inspect
   end
 
   while neighbors.length > 0
+    STDERR.puts "Neighbors# at beg: #{neighbors.length}"
     target_expansion = expand_target(target_hash, new_hash, my_paths, wall_hash)
     if target_expansion.length == 1 # only one hash
       STDERR.puts "Expand_target passed meet up to find_shortest_path"
@@ -397,6 +401,7 @@ def find_shortest_path(my_id, my_x, my_y, wall_hash)
     end
 
     my_expansion = expand_paths(my_paths, neighbors, target_hash, wall_hash)
+    STDERR.puts "My_expansion: #{my_expansion}"
     if my_expansion.length == 1 # only one hash
       STDERR.puts "Expand_paths passed meet up to find_shortest_path"
       return my_expansion
@@ -404,7 +409,9 @@ def find_shortest_path(my_id, my_x, my_y, wall_hash)
       my_paths = my_expansion[0]
       neighbors = my_expansion[1]
     end
+    STDERR.puts "Neighbors# at end: #{neighbors.length}"
   end
+  STDERR.puts "Exited finder loop empty."
 end
 
 def trace_back(my_id, my_x, my_y, wall_hash)
