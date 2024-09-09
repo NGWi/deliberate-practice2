@@ -269,6 +269,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
       neighbors << {x: right_x, y: right_y}
       target_hash["#{right_x},#{right_y}"] = []
       if my_paths["#{right_x},#{right_y}"]
+        STDERR.puts "Expand_target met up with my_paths"
         return {x: right_x, y: right_y}
       end
     end
@@ -278,6 +279,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
       neighbors << {x: left_x, y: left_y}
       target_hash["#{left_x},#{left_y}"] = []
       if my_paths["#{left_x},#{left_y}"]
+        STDERR.puts "Expand_target met up with my_paths"
         return {x: left_x, y: left_y}
       end
     end
@@ -287,6 +289,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
       neighbors << {x: down_x, y: down_y}
       target_hash["#{down_x},#{down_y}"] = []
       if my_paths["#{down_x},#{down_y}"]
+        STDERR.puts "Expand_target met up with my_paths"
         return {x: down_x, y: down_y}
       end
     end
@@ -296,6 +299,7 @@ def expand_target(target_hash, new_hash, my_paths, wall_hash)
       neighbors << {x: up_x, y: up_y}
       target_hash["#{up_x},#{up_y}"] = []
       if my_paths["#{up_x},#{up_y}"]
+        STDERR.puts "Expand_target met up with my_paths"
         return {x: up_x, y: up_y}
       end
     end
@@ -315,6 +319,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
     my_paths["#{right_x},#{right_y}"] = []
     neighbors["#{right_x},#{right_y}"] = {x: right_x, y: right_y, parent: parent}
     if target_hash["#{right_x},#{right_y}"]
+      STDERR.puts "My_neighbors met up with target_hash"
       return {x: right_x, y: right_y, parent: parent}
     end
   end
@@ -324,6 +329,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
     my_paths["#{left_x},#{left_y}"] = []
     neighbors["#{left_x},#{left_y}"] = {x: left_x, y: left_y, parent: parent}
     if target_hash["#{left_x},#{left_y}"]
+      STDERR.puts "My_neighbors met up with target_hash"
       return {x: left_x, y: left_y, parent: parent}
     end
   end
@@ -333,6 +339,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
     my_paths["#{down_x},#{down_y}"] = []
     neighbors["#{down_x},#{down_y}"] = {x: down_x, y: down_y, parent: parent}
     if target_hash["#{down_x},#{down_y}"]
+      STDERR.puts "My_neighbors met up with target_hash"
       return {x: down_x, y: down_y, parent: parent}
     end
   end
@@ -342,6 +349,7 @@ def my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
     my_paths["#{up_x},#{up_y}"] = []
     neighbors["#{up_x},#{up_y}"] = {x: up_x, y: up_y, parent: parent}
     if target_hash["#{up_x},#{up_y}"]
+      STDERR.puts "My_neighbors met up with target_hash"
       return {x: up_x, y: up_y, parent: parent}
     end
   end
@@ -354,11 +362,13 @@ def expand_paths(my_paths, neighbors, target_hash, wall_hash)
     y = value[:y]
     routes = my_neighbors(x, y, my_paths, target_hash, wall_hash)
     if routes.length == 1 # only one hash
+      STDERR.puts "My_neighbors passed meet up to expand_paths"
       return routes
     else
       my_paths = routes[0]
       neighbors = routes[1]
     end
+
     my_paths[key] = neighbors
   }
   return [my_paths, neighbors]
@@ -369,21 +379,26 @@ def find_shortest_path(my_id, my_x, my_y, wall_hash)
   my_paths = {}
   routes = my_neighbors(my_x, my_y, my_paths, target_hash, wall_hash)
   if routes.length == 1 # only one hash
+    STDERR.puts "My_neighbors passed meet up to find_shortest_path"
     return routes
   else
     my_paths = routes[0]
     neighbors = routes[1]
   end
+
   while neighbors.length > 0
     target_expansion = expand_target(target_hash, new_hash, my_paths, wall_hash)
     if target_expansion.length == 1 # only one hash
+      STDERR.puts "Expand_target passed meet up to find_shortest_path"
       return target_expansion
     else
       my_paths = target_expansion[0]
       neighbors = target_expansion[1]
     end
+
     my_expansion = expand_paths(my_paths, neighbors, target_hash, wall_hash)
     if my_expansion.length == 1 # only one hash
+      STDERR.puts "Expand_paths passed meet up to find_shortest_path"
       return my_expansion
     else
       my_paths = my_expansion[0]
