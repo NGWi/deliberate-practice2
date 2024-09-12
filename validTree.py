@@ -32,14 +32,14 @@ class Solution:
     ) -> (
         bool
     ):  # If it could only by used by the validTree function it wouldn't need to be passed the forbiddenHash, but it's always better to be explicit anyways even if its more verbose.
-        """Takes a suggested connection, adds ancestor nodes to its entry in the forbiddenHash "database", or returns False if it is an already forbidden connection."""
+        """Takes a suggested connection, adds ancestor nodes to one of the nodes' entry in the forbiddenHash "database", or returns False if it is an already forbidden connection."""
         forbiddenForThisNode = forbiddenHash.get(node, [])
         if otherNode in forbiddenForThisNode:
             return False
         if otherNode in forbiddenHash:
             forbiddenForThisNode.extend(forbiddenHash[otherNode])
 
-        forbiddenHash[node] = forbiddenForThisNode + [otherNode]  # Need to do otherNode to pass, e.g. n=5, edges=[[0,1],[1,3],[3,0],[2,4]]
+        forbiddenHash[node] = forbiddenForThisNode + [otherNode]  # Need to do otherNode to pass, e.g. n=5, edges=[[0,1],[0,2],[1,2],[3,4]]
 
     def validTree(self, n: int, edges: List[List[int]]) -> bool:
         if n - 1 != len(
