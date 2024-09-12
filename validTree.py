@@ -27,11 +27,7 @@
 
 
 class Solution:
-    def forbidConnections(
-        self, node: int, otherNode: int, forbiddenHash: dict
-    ) -> (
-        bool
-    ):  # If it could only by used by the validTree function it wouldn't need to be passed the forbiddenHash, but it's always better to be explicit anyways even if its more verbose.
+    def forbidConnections(self, node: int, otherNode: int, forbiddenHash: dict ) -> bool:  # If it could only by used by the validTree function it wouldn't need to be passed the forbiddenHash, but it's always better to be explicit anyways even if its more verbose.
         """Takes a suggested connection, adds ancestor nodes to one of the nodes' entry in the forbiddenHash "database", or returns False if it is an already forbidden connection."""
         forbiddenForThisNode = forbiddenHash.get(node, [])
         if otherNode in forbiddenForThisNode:
