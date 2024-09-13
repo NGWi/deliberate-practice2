@@ -33,7 +33,7 @@ class Solution:
       else:
         return self.climbStairs(n - 1) + self.climbStairs(n - 2)
 
-    def climbStairs(self, n: int) -> int:
+    def climbStairsV2(self, n: int) -> int:
       if n <= 3: # Or 2
         return n
       else:
