@@ -37,16 +37,6 @@
 
 
 class Solution:
-    # def addLetterOrder(self, letter, other, lowerLetterHash, higherLetterHash):
-    #     lowerLetterHash[letter] = (lowerLetterHash.get(letter, set()) |
-    #                                {other}
-    #                             #    | lowerLetterHash.get(other, set())
-    #                             )
-    #     higherLetterHash[other] = (higherLetterHash.get(other, set()) |
-    #                                {letter}
-    #                             #    | higherLetterHash.get(letter, set())
-    #                             )
-
     def compareLetters(self, words: List[str], conclusions: dict) -> bool:
         word_i = 0
         last_w_i = len(words) - 1
@@ -64,7 +54,7 @@ class Solution:
                 # print(letter, other)
                 if letter != other:
                     # print(letter, other)
-                    conclusions[letter] = conclusions.get(letter, set()) | {other}
+                    conclusions[other] = conclusions.get(other, set()) | {letter}
                     break
                 letter_i += 1
             else:
@@ -89,17 +79,17 @@ class Solution:
               to_process -= children
               to_process.update(next_row)
 
-    def validateConclusions(self, conclusions) -> bool:
-        for letter in list(conclusions.keys()):
-            if letter in conclusions[letter]:
+    def validateConclusions(self, letterHash) -> bool:
+        for letter in list(letterHash.keys()):
+            if letter in letterHash[letter]:
                 return False
 
     def sortLetters(self, letterHash, allLetters) -> str:
         hierarchy = []
         graphed_letters = set(letterHash.keys())
-        ordered_letters = sorted(graphed_letters, key=lambda x: len(letterHash[x]), reverse = True)
+        ordered_letters = sorted(graphed_letters, key=lambda x: len(letterHash[x]))
         wild_cards = list(allLetters - graphed_letters)
-        hierarchy += ordered_letters + wild_cards
+        hierarchy += wild_cards + ordered_letters
         return "".join(hierarchy)
 
     def foreignDictionary(self, words: List[str]) -> str:
