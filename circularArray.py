@@ -65,21 +65,23 @@ print(circular_array_loop([1,1,1,1,1]))
 print("*" * 10)
 print(circular_array_loop([1, 2, 3, 4, 5, 6]))
 print("*" * 10)
-print(circular_array_loop([0, 0, 0, 0, 0, 0]))
+print(circular_array_loop([0]))
+print("*" * 10)
+print(circular_array_loop([]))
 
-input = (
-        [-2, -3, -9],
-        [-5, -4, -3, -2, -1],
-        [-1, -2, -3, -4, -5],
-        [2, 1, -1, -2],
-        [-1, -2, -3, -4, -5, 6],
-        [1, 2, -3, 3, 4, 7, 1],
-        [2, 2, 2, 7, 2, -1, 2, -1, -1]
-        )
-num = 1
+# input = (
+#         [-2, -3, -9],
+#         [-5, -4, -3, -2, -1],
+#         [-1, -2, -3, -4, -5],
+#         [2, 1, -1, -2],
+#         [-1, -2, -3, -4, -5, 6],
+#         [1, 2, -3, 3, 4, 7, 1],
+#         [2, 2, 2, 7, 2, -1, 2, -1, -1]
+#         )
+# num = 1
 
-for i in input:
-    print(f"{num}.\tCircular array = {i}")
-    print(f"\n\tFound loop = {circular_array_loop(i)}")
-    print("-"*100, "\n")
-    num += 1
+# for i in input:
+#     print(f"{num}.\tCircular array = {i}")
+#     print(f"\n\tFound loop = {circular_array_loop(i)}")
+#     print("-"*100, "\n")
+#     num += 1
