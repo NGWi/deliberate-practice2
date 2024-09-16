@@ -30,7 +30,7 @@ class Solution:
         index = 0
         while index < length:
             c = max(nums[index] + a, b)
-            a, b = b, c
+            a, b = b, c                       # If I seperate it into a = b; b = c its' performance goes up to the best quartile but the memory usage goes down to around "Beats 69%" usually.
             index += 1
         return c
       
