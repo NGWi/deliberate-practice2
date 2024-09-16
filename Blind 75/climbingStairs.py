@@ -27,6 +27,13 @@
 # 1 <= n <= 30
 
 class Solution:
+    def climbStairsv3(self, n: int, memo={1: 1, 2: 2, 3: 3}) -> int:
+      if n in memo:
+        return memo[n]
+      else:
+        memo[n] = self.climbStairsv3(n - 1, memo) + self.climbStairsv3(n - 2, memo)
+      return memo[n]
+  
     def climbStairs(self, n: int) -> int:
       if n <= 3: # Or 2
         return n
