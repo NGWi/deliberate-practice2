@@ -159,7 +159,7 @@ def test_functions():
     timeit_ave_change = timeit_change / num_loops
     timeit_ave_change_sorted = timeit_change_sorted / num_loops
 
-    print(f"Average time taken by rob: {average_time_change:.6f} seconds")
+    print(f"Average time taken by change: {average_time_change:.6f} seconds")
     print(f"Average time taken by changeSorted: {average_time_change_sorted:.6f} seconds")
     print("According to timeit:")
     print(f"Average time taken by change: {timeit_ave_change:.6f} seconds")
