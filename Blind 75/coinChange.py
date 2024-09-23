@@ -31,6 +31,9 @@
 # 1 <= coins.length <= 10
 # 1 <= coins[i] <= 2^31 - 1
 # 0 <= amount <= 10000
+
+from typing import List 
+
 class Solution:
 #     def changeMachine(self, coins_arr: list, target: int) -> int:
 #       count = 0
@@ -73,7 +76,7 @@ class Solution:
         return memo[n]
       return results_table(target)
     
-    def coinChange(self, coins: List[int], target: int) -> int:
+    def change (self, coins: List[int], target: int) -> int:
       results_table = {0: 0} # Base case: 0 coins needed to make the amount 0
       def get_result(amount: int) -> int: # If results_table[amount] exists, return it. Otherwise, return target + 1, an impossibly high number.
           return results_table.get(amount, target + 1)
@@ -92,7 +95,7 @@ class Solution:
         return -1
       return result
     
-    def coinChange(self, coins: List[int], target: int) -> int:
+    def changeSorted (self, coins: List[int], target: int) -> int:
       results_table = {0: 0} # Base case: 0 coins needed to make the amount 0
       def get_result(amount: int) -> int: # If results_table[amount] exists, return it. Otherwise, return target + 1, an impossibly high number.
           return results_table.get(amount, target + 1)
@@ -111,3 +114,55 @@ class Solution:
       if result == target + 1:
         return -1
       return result
+
+import random
+import time
+import timeit
+
+def generate_random_coins(n):
+    return [random.randint(1, 2**31) for _ in range(n)]
+
+def test_functions():
+    num_loops = 100
+    num_coins = random.randint(1, 50) # For < 50 or amount < 10 mil., there is no advantage to sorting, on average.
+    target = random.randint(1, 10000000)
+
+    total_time_change = 0
+    total_time_change_sorted = 0
+
+    timeit_change = 0
+    timeit_change_sorted = 0
+    
+    solution = Solution()
+    
+    for _ in range(num_loops):
+        coins = generate_random_coins(num_coins)
+
+        start_time = time.time()
+        result_change = solution.change(coins, target)
+        end_time = time.time()
+        total_time_change += end_time - start_time
+
+        start_time = time.time()
+        result_change_sorted = solution.changeSorted(coins, target)
+        end_time = time.time()
+        total_time_change_sorted += end_time - start_time
+
+        # You can also add a check to make sure the results are equal
+        assert result_change == result_change_sorted
+        
+        timeit_change += timeit.timeit(lambda: solution.change(coins, target), number=1)
+        timeit_change_sorted += timeit.timeit(lambda: solution.changeSorted(coins, target), number=1)
+
+    average_time_change = total_time_change / num_loops
+    average_time_change_sorted = total_time_change_sorted / num_loops
+    timeit_ave_change = timeit_change / num_loops
+    timeit_ave_change_sorted = timeit_change_sorted / num_loops
+
+    print(f"Average time taken by rob: {average_time_change:.6f} seconds")
+    print(f"Average time taken by changeSorted: {average_time_change_sorted:.6f} seconds")
+    print("According to timeit:")
+    print(f"Average time taken by change: {timeit_ave_change:.6f} seconds")
+    print(f"Average time taken by changeSorted: {timeit_ave_change_sorted:.6f} seconds")
+
+test_functions()
