@@ -148,7 +148,6 @@ def test_functions():
         end_time = time.time()
         total_time_change_sorted += end_time - start_time
 
-        # You can also add a check to make sure the results are equal
         assert result_change == result_change_sorted
         
         timeit_change += timeit.timeit(lambda: solution.change(coins, target), number=1)
