@@ -218,5 +218,24 @@ class Solution:
       
       
 leet_test_184 = [-3,2,-2,1,-1,0,-3,-1]
+
+from functools import reduce
+class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        def reductor(state: tuple, num: int) -> tuple:
+            temp_max, temp_min, ultimate_max = state
+            if num == 0:
+                return (0, 0, max(ultimate_max, 0))
+            if num < 0:
+                temp_max, temp_min = temp_min, temp_max
+            temp_max = max(num, temp_max * num)
+            temp_min = min(num, temp_min * num)
+            ultimate_max = max(ultimate_max, temp_max)
+            return (temp_max, temp_min, ultimate_max)
+
+        if not nums:
+            return 0
+        first = nums[0]
+        return reduce(reductor, nums[1:], (first, first, first))[2]
         
         
