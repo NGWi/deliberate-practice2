@@ -194,10 +194,9 @@ class Solution:
     
     def maxProduct(self, nums: List[int]) -> int:
       temp_max = temp_min = ultimate_max = nums[0]
-      for num in nums[1:]:
-          temp_min, _, temp_max = sorted([num, temp_max * num, temp_min * num])
-          ultimate_max = max(ultimate_max, temp_max)
+      for num in nums[1:]: temp_min, _, temp_max = sorted([num, temp_max * num, temp_min * num]); ultimate_max = max(ultimate_max, temp_max)
       return ultimate_max
+    
     def maxProduct(self, nums: List[int]) -> int:
         temp_max = temp_min = nums[0]
         ultimate_max = max(nums)
