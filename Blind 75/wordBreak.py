@@ -74,7 +74,7 @@ class Solution:
     
 # DP solution
     def wordBreak(self, s: str, wordDict: List[str]) -> bool:
-      up_to = [False] * (len(s) + 1) # We will We will align i in this list with s[i - 1] as follows.
+      up_to = [False] * (len(s) + 1) # We will align i in this list with s[i - 1] as follows.
       up_to[0] = True # This is the value for before the first character.
       for i in range(1, len(s) + 1): # This i is aligned with i in the up_to.
           for j in range(i):  # All characters before the character at s[i]
@@ -84,7 +84,7 @@ class Solution:
       return up_to[-1] # Check if we were successful with s["last_index"]
     
     def wordBreak(self, s: str, wordDict: List[str]) -> bool:
-        up_to = [True] # his is the value for before the first character. We will align i in this list with s[i - 1] as follows.
+        up_to = [True] # This is the value for before the first character. We will align i in this list with s[i - 1] as follows.
         for i in range(1, len(s) + 1): # This i is aligned with i in the up_to.
             last_j = i - 1
             for j in range(i):  # All characters before the character at s[i]
