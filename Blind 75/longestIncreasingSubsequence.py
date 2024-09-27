@@ -76,10 +76,10 @@ class Solution:
         rankings_len = 1
         for num in nums[1:]:
             placement, max = 0, rankings_len # Revving up a binary search for the correct placement of nums in rankings :-)
-            while placement < max:
+            while placement < max:           # Binary search loop.
                 mid = (placement + max) // 2 # Rounds down to stay within ranking's range.
                 if rankings[mid] < num:
-                    placement = mid + 1 # +1 is to avoid getting stuck always 1 less than max and num because of the rounding down
+                    placement = mid + 1 # +1 is to avoid getting stuck always 1 less than max because of the rounding down
                 else:
                     max = mid                 
             if placement == rankings_len:
