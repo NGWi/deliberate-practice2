@@ -180,7 +180,7 @@ class Solution:
                     up_to = []
                   else: 
                     up_to = up_to[-(up_to_index):]  
-              if j < first_j: break       # Give up on this i
+                  if j < first_j: break       # Give up on this i
               if s[j:i] in wordDict:      # That through s[j - 1] it was true and from j through s[i - 1] is another word.
                   up_to.append(i)         # We've found a way to break up through s[i - 1] into words...
                   break                   # so we can move on to trying with s[i]. 
