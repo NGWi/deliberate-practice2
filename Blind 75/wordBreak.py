@@ -175,8 +175,8 @@ class Solution:
       for i in range(1, str_len + 1):
           first_j = i - longest_w_len # First potential starting character. Will also be limited to 0 in the next line.
           for up_to_index, j in enumerate(up_to[::-1]): # Move backwards through potential starting characters before the character at s[i]
-              if j <= first_j:            # Will never have need for the earlier ones again. The enumerable's up_to_index will start from 0 and go up.
-                  if up_to_index == 0: 
+              if j <= first_j:            # Will never have need for the earlier ones again.
+                  if up_to_index == 0:    # # The enumerable's up_to_index started from 0 and goes up.
                     up_to = []
                   else: 
                     up_to = up_to[-(up_to_index):]  
