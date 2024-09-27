@@ -75,16 +75,16 @@ class Solution:
         rankings = [nums[0]] # Alternative name: best_of_len_x. Will contain lowest num so far that ends an LIS of length of this index + 1
         rankings_len = 1
         for num in nums[1:]:
-          placement, max = 0, rankings_len # Revving up a binary search for the correct placement of nums in rankings :-)
-          while placement < max:
-              mid = (placement + max) // 2 # Rounds down to stay within ranking's range.
-              if rankings[mid] < num:
-                  placement = mid # +1 is to avoid getting stuck always 1 less than max and num because of the rounding down
-              else:
-                  max = mid                 
-          if placement == rankings_len:
-              rankings.append(num) # Add num as the end of the longest IS yet
-              rankings_len += 1
-          else:
-              rankings[placement] = num
+            placement, max = 0, rankings_len # Revving up a binary search for the correct placement of nums in rankings :-)
+            while placement < max:
+                mid = (placement + max) // 2 # Rounds down to stay within ranking's range.
+                if rankings[mid] < num:
+                    placement = mid + 1 # +1 is to avoid getting stuck always 1 less than max and num because of the rounding down
+                else:
+                    max = mid                 
+            if placement == rankings_len:
+                rankings.append(num) # Add num as the end of the longest IS yet
+                rankings_len += 1
+            else:
+                rankings[placement] = num
         return rankings_len
