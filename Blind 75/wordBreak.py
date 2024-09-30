@@ -187,7 +187,7 @@ class Solution:
               if not up_to: return False  # If the last valid j will be out of range, we don't have to bother with the rest of the string.
       return up_to[-1] == str_len         # Check if we were successful with s["last_index"].
     
-    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+    def wordBreak1(self, s: str, wordDict: List[str]) -> bool:
       str_len = len(s)
       longest_w_len = max(len(word) for word in wordDict)
       wordDict = set(wordDict)
@@ -213,7 +213,7 @@ class Solution:
               j -= 1
       return up_to[-1] == str_len           # Check if we were successful with s["last_index"].
     
-class Solution:
+
     def wordBreak(self, s: str, wordDict: List[str]) -> bool:
         """Return whether or not s can be broken up into words from wordDict."""
         str_len = len(s)
@@ -227,7 +227,7 @@ class Solution:
                 return False
         return up_to[-1] == str_len
 
-    def partialBreak(self, s: str, i: int, earliest_start: int, up_to: List[int], wordDict: Set[str]) -> bool:
+    def partialBreak(self, s: str, i: int, earliest_start: int, up_to: List[int], wordDict: set) -> bool:
         """Return whether or not s[:i] can be broken up into words from wordDict."""
         j = -1
         last_j = -len(up_to)
@@ -250,24 +250,154 @@ class Solution:
                 break
             j -= 1
         return up_to
+      
+    def wordBreak2(self, s: str, wordDict: List[str]) -> bool:
+      str_len = len(s)
+      unique_word_lengths = list(set(len(word) for word in wordDict))
+      longest_w_len = max(unique_word_lengths)
+      latest_i = longest_w_len
+      wordDict = set(wordDict)
+      up_to = {0}              # Indices where the preceding string evaluated as True
+      for i in range(1, str_len + 1):
+          if i > latest_i: return False                  # If its out of range, we don't have to bother with the rest of the string.
+          for j in unique_word_lengths:
+              starting_index = i - j
+              if starting_index in up_to:
+                if s[starting_index:i] in wordDict:      # That through s[starting_index - 1] it was true and from starting_index through s[i - 1] is another word.
+                  up_to.add(i)
+                  latest_i = i + longest_w_len           # We've found a way to break up through s[i - 1] into words...
+                  break                                  # so we can move on to trying with s[i]. 
+      return str_len in up_to   # Check if we were successful with s["last_index"].
     
+    
+import random
+import string
 import timeit
 
-def iterate_list(lst):
-    for _ in lst:
-        pass
+def generate_random_string(length):
+    return ''.join(random.choices(string.ascii_lowercase, k=length))
 
-def iterate_set(s):
-    for _ in s:
-        pass
+def break_down_string(s, word_dict, num_extra_words=0, remove_word=False):
+    words = [s[i: j] for i in range(len(s)) for j in range(i + 1, len(s) + 1) if s[i:j] in word_dict]
+    if remove_word:
+        words.pop(random.randint(0, len(words)-1))
+    words.extend([generate_random_string(random.randint(1, 20)) for _ in range(num_extra_words)])
+    random.shuffle(words)
+    return ' '.join(words)
 
-# Create a large list and set with 10 million elements
-l = list(range(10**7))
-s = set(range(10**7))
+# # Generate a random string of length 200
+# s = generate_random_string(600)
 
-# Benchmark iteration over the list and set
-list_time = timeit.timeit(lambda: iterate_list(l), number=10)
-set_time = timeit.timeit(lambda: iterate_set(s), number=10)
+# # Create a dictionary of 100 words
+# word_dict = [generate_random_string(random.randint(1, 20)) for _ in range(10000)]
 
-print(f"Iterating over the list took {list_time:.2f} seconds")
-print(f"Iterating over the set took {set_time:.2f} seconds")
+# # Break down the string into a dictionary with some extra random words
+# # and remove one of the essential words
+# false_example = break_down_string(s, word_dict, num_extra_words=10, remove_word=True)
+
+# def generate_true_example(s, word_dict):
+#     words = [word for word in s.split() if word in word_dict]
+#     random.shuffle(words)
+#     return ' '.join(words)
+
+# # Generate an example that evaluates as true
+# true_example = generate_true_example(s, word_dict)
+
+# # Create a Solution instance
+# solution = Solution()
+
+# # Time the execution of wordBreak1 and wordBreak2
+# print("Testing wordBreak1 and wordBreak2 on false examples...")
+# wordBreak1_time = timeit.timeit(lambda: solution.wordBreak1(false_example, word_dict), number=1000)
+# wordBreak2_time = timeit.timeit(lambda: solution.wordBreak2(false_example, word_dict), number=1000)
+# print("wordBreak1 time:", wordBreak1_time)
+# print("wordBreak2 time:", wordBreak2_time)
+
+# print("Testing wordBreak1 and wordBreak2 on true examples...")
+# wordBreak1_time = timeit.timeit(lambda: solution.wordBreak1(true_example, word_dict), number=1000)
+# wordBreak2_time = timeit.timeit(lambda: solution.wordBreak2(true_example, word_dict), number=1000)
+# print("wordBreak1 time:", wordBreak1_time)
+# print("wordBreak2 time:", wordBreak2_time)
+
+import random
+import string
+import timeit
+
+# import pandas as pd
+# import numpy as np
+# from scipy.signal import savgol_filter
+import matplotlib.pyplot as plt
+
+def generate_random_string(length):
+    return ''.join(random.choices(string.ascii_lowercase, k=length))
+
+def generate_random_dictionary(num_words):
+    return [generate_random_string(random.randint(1, 20)) for _ in range(num_words)]
+
+def generate_true_example(word_dict):
+    s = ''.join(random.choice(word_dict) for _ in range(random.randint(1, 10)))
+    return s
+
+def generate_false_example(word_dict):
+    s = generate_true_example(word_dict)
+    s = s + ''.join(random.choices(string.ascii_lowercase, k=10))
+    return s
+
+print("Setting up tests...")
+string_sizes = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000]
+dict_sizes = [100, 500, 1000, 2000, 3000]
+
+wordBreak1_true_times = []
+wordBreak2_true_times = []
+wordBreak1_false_times = []
+wordBreak2_false_times = []
+string_dict_sizes = []
+
+for string_size in string_sizes:
+    print("String size: ", string_size)
+    for dict_size in dict_sizes:
+        string_dict_sizes.append(string_size * dict_size)
+        word_dict = generate_random_dictionary(dict_size)
+        true_s = generate_true_example(word_dict)
+        true_s = true_s * (string_size // len(true_s)) + true_s[:string_size % len(true_s)]
+        false_s = generate_false_example(word_dict)
+        false_s = false_s * (string_size // len(false_s)) + false_s[:string_size % len(false_s)]
+        
+        solution = Solution()
+        
+        wordBreak1_true_time = timeit.timeit(lambda: solution.wordBreak1(true_s, word_dict), number=100)
+        wordBreak2_true_time = timeit.timeit(lambda: solution.wordBreak2(true_s, word_dict), number=100)
+        wordBreak1_false_time = timeit.timeit(lambda: solution.wordBreak1(false_s, word_dict), number=100)
+        wordBreak2_false_time = timeit.timeit(lambda: solution.wordBreak2(false_s, word_dict), number=100)
+        
+        wordBreak1_true_times.append(wordBreak1_true_time)
+        wordBreak2_true_times.append(wordBreak2_true_time)
+        wordBreak1_false_times.append(wordBreak1_false_time)
+        wordBreak2_false_times.append(wordBreak2_false_time)
+        
+        print("wordBreak1 True Times:", wordBreak1_true_time)
+        print("wordBreak2 True Times:", wordBreak2_true_time)
+        print("wordBreak1 False Times:", wordBreak1_false_time)
+        print("wordBreak2 False Times:", wordBreak2_false_time)
+
+# Conclusions:
+# wordBreak1 is faster in most of my test cases, but wordBreak2 is faster in very large dict sizes.
+
+# def iterate_list(lst):
+#     for _ in lst:
+#         pass
+
+# def iterate_set(s):
+#     for _ in s:
+#         pass
+
+# # Create a large list and set with 10 million elements
+# l = list(range(10**7))
+# s = set(range(10**7))
+
+# # Benchmark iteration over the list and set
+# list_time = timeit.timeit(lambda: iterate_list(l), number=10)
+# set_time = timeit.timeit(lambda: iterate_set(s), number=10)
+
+# print(f"Iterating over the list took {list_time:.2f} seconds")
+# print(f"Iterating over the set took {set_time:.2f} seconds")
