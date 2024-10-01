@@ -48,10 +48,10 @@ class Solution:
         for idx, char in enumerate(text2):
           comparison[char].append(idx)
         length = 0
-        for i, char in enumerate(text1):
+        for char in text1:
           if char in comparison:
             indices = comparison[char]
-            temp_indices = text2_indices
+            temp_indices = text2_indices.copy()
             for j in indices:
               placement = self.binaryPlacement(text2_indices, length, j)
               if placement == length:
@@ -62,7 +62,6 @@ class Solution:
                 temp_indices[placement] = j
             text2_indices = temp_indices
         return length
-        
             
         
 solution = Solution()
@@ -72,4 +71,5 @@ solution = Solution()
 # print(solution.longestCommonSubsequence("bsbininm", "jmjkbkjkv"))
 # print(solution.longestCommonSubsequence("abcba", "abcbcba"))
 # print(solution.longestCommonSubsequence("papmretkborsrurgtina", "nsnupotstmnkfcfavaxgl"))
-print(solution.longestCommonSubsequence("yzebsbuxmtcfmtodclszgh", "ejevmhcvshclydqrulwbyha")) # 6
+# print(solution.longestCommonSubsequence("yzebsbuxmtcfmtodclszgh", "ejevmhcvshclydqrulwbyha")) # 6
+print(solution.longestCommonSubsequence("pmjghexybyrgzczy", "hafcdqbgncrcbihkd")) # 4
