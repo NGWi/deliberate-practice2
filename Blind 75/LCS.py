@@ -43,32 +43,27 @@ class Solution:
       return left
       
     def longestCommonSubsequence(self, text1: str, text2: str) -> int:
-        text2_indices = []
-        comparison = {char: [] for char in set(text2)}
+        text2_indices = []  # Will store the index in text2 of each character that could potentially be part of the LCS
+        comparison = {char: [] for char in set(text2)} # Dict for O(1) lookup of each characters indices in text2
         for idx, char in enumerate(text2):
           comparison[char].append(idx)
-        length = 0
-        for char in text1:
-          print(char)
+          
+        length = 0          # Current length of best LCS so far, so I can save retrieving it from the list object.
+        for char in text1:  
           if char in comparison:
-            indices = comparison[char]
-            print("Comparing:",indices)
-            temp_indices = text2_indices.copy()
-            last_placement = None
+            indices = comparison[char]            # Retrieved indices of the char in text2
+            temp_indices = text2_indices.copy()   # Making copy so that the char isn't placed at the tail of a Common Sequence that includes itself from a different index in text2 when it's really from the same index in text1.
+            last_placement = None                 # Keeping track of the last place the index from text2 was placed, so it's not replaced with a higher index.
             for j in indices:
-              print(text2_indices, j)
               if not text2_indices or j > text2_indices[-1]:
-                print("Yay!", j)
                 temp_indices.append(j)
                 length += 1
                 break
               else:
-                placement = self.binaryPlacement(text2_indices, length, j)
-                if last_placement == None or placement > last_placement:
-                  print("Last placement", last_placement, "Replacing", placement)
+                placement = self.binaryPlacement(text2_indices, length, j) # O(log m) loop
+                if last_placement == None or placement > last_placement: 
                   temp_indices[placement] = j
                 last_placement = placement
-              print(temp_indices)
             text2_indices = temp_indices
         return length
         
@@ -82,4 +77,3 @@ solution = Solution()
 # print(solution.longestCommonSubsequence("yzebsbuxmtcfmtodclszgh", "ejevmhcvshclydqrulwbyha")) # 6
 # print(solution.longestCommonSubsequence("pmjghexybyrgzczy", "hafcdqbgncrcbihkd")) # 4
 print(solution.longestCommonSubsequence("azopevefqpmvkvctwhgnivoxqlwrmfyrslyjqlufgxkponkbgpqtifyhgb", "gdsvqvkjmritatgzspyfwpozuzwpujqfctepatuponctwpejwzmbwzarojo")) # 16
-# azope/v
