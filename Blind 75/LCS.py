@@ -37,7 +37,7 @@ class Solution:
       while left < right:
           mid = (left + right) // 2 # Rounds down to stay within ranking's range.
           if text2_indices[mid] < text2_i:
-              left = mid + 1  # +1 is to avoid getting stuck always 1 less than right because of the rounding down
+              left = mid + 1        # +1 is to avoid getting stuck always 1 less than right because of the rounding down
           else:
               right = mid
       return left
