@@ -33,6 +33,7 @@ class Solution:
       """
       Returns the index where char should be inserted in rankings.
       """
+      print(text2_indices, text2_i)
       left, right = 0, length
       while left < right:
           mid = (left + right) // 2 # Rounds down to stay within ranking's range.
@@ -49,20 +50,26 @@ class Solution:
           comparison[char].append(idx)
         length = 0
         for char in text1:
+          print(char)
           if char in comparison:
             indices = comparison[char]
+            print(indices)
             temp_indices = text2_indices.copy()
+            last_placement = None
             for j in indices:
-              placement = self.binaryPlacement(text2_indices, length, j)
-              if placement == length:
+              if not text2_indices or j > text2_indices[-1]:
+                print("Yay!", j)
                 temp_indices.append(j)
                 length += 1
                 break
               else:
-                temp_indices[placement] = j
+                placement = self.binaryPlacement(text2_indices, length, j)
+                if not last_placement or placement > last_placement: 
+                  temp_indices[placement] = j
+                last_placement = placement
+              print(temp_indices)
             text2_indices = temp_indices
         return length
-            
         
 solution = Solution()
 # print(solution.longestCommonSubsequence("cat", "crabt"))
@@ -72,4 +79,5 @@ solution = Solution()
 # print(solution.longestCommonSubsequence("abcba", "abcbcba"))
 # print(solution.longestCommonSubsequence("papmretkborsrurgtina", "nsnupotstmnkfcfavaxgl"))
 # print(solution.longestCommonSubsequence("yzebsbuxmtcfmtodclszgh", "ejevmhcvshclydqrulwbyha")) # 6
-print(solution.longestCommonSubsequence("pmjghexybyrgzczy", "hafcdqbgncrcbihkd")) # 4
+# print(solution.longestCommonSubsequence("pmjghexybyrgzczy", "hafcdqbgncrcbihkd")) # 4
+print(solution.longestCommonSubsequence("azopevefqpmvkvctwhgnivoxqlwrmfyrslyjqlufgxkponkbgpqtifyhgb", "gdsvqvkjmritatgzspyfwpozuzwpujqfctepatuponctwpejwzmbwzarojo")) # 16
