@@ -33,7 +33,6 @@ class Solution:
       """
       Returns the index where char should be inserted in rankings.
       """
-      print(text2_indices, text2_i)
       left, right = 0, length
       while left < right:
           mid = (left + right) // 2 # Rounds down to stay within ranking's range.
@@ -53,10 +52,11 @@ class Solution:
           print(char)
           if char in comparison:
             indices = comparison[char]
-            print(indices)
+            print("Comparing:",indices)
             temp_indices = text2_indices.copy()
             last_placement = None
             for j in indices:
+              print(text2_indices, j)
               if not text2_indices or j > text2_indices[-1]:
                 print("Yay!", j)
                 temp_indices.append(j)
@@ -64,7 +64,8 @@ class Solution:
                 break
               else:
                 placement = self.binaryPlacement(text2_indices, length, j)
-                if not last_placement or placement > last_placement: 
+                if last_placement == None or placement > last_placement:
+                  print("Last placement", last_placement, "Replacing", placement)
                   temp_indices[placement] = j
                 last_placement = placement
               print(temp_indices)
@@ -81,3 +82,4 @@ solution = Solution()
 # print(solution.longestCommonSubsequence("yzebsbuxmtcfmtodclszgh", "ejevmhcvshclydqrulwbyha")) # 6
 # print(solution.longestCommonSubsequence("pmjghexybyrgzczy", "hafcdqbgncrcbihkd")) # 4
 print(solution.longestCommonSubsequence("azopevefqpmvkvctwhgnivoxqlwrmfyrslyjqlufgxkponkbgpqtifyhgb", "gdsvqvkjmritatgzspyfwpozuzwpujqfctepatuponctwpejwzmbwzarojo")) # 16
+# azope/v
