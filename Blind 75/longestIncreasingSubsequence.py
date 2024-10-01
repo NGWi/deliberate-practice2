@@ -50,7 +50,7 @@ class Solution:
         """
         Returns the index where num should be inserted in rankings. (subs_len - 1 ;))
         """
-        left, max = 0, rankings_len
+        left, right = 0, rankings_len
         while left < right:
             mid = (left + right) // 2 # Rounds down to stay within ranking's range.
             if rankings[mid] < num:
