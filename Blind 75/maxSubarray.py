@@ -20,16 +20,115 @@
 # 1 <= nums.length <= 1000
 # -1000 <= nums[i] <= 1000
 
+from typing import List
+from functools import reduce
 class Solution:
     def maxSubArray(self, nums: List[int]) -> int:
       max_sum = max(nums)
       current_sum = nums[0]
       
       for num in nums[1:]:
+          if current_sum < 0:
+              current_sum = 0
           current_sum += num
           if current_sum > max_sum:
               max_sum = current_sum
-          if current_sum < 0:
-              current_sum = 0
+      
+      return max_sum    
+# Better memory, slower.
+    def maxSubArray2(self, nums: List[int]) -> int:
+      max_sum = current_sum = nums[0]
+      
+      for num in nums[1:]:
+          current_sum = max(num, current_sum + num)
+          max_sum = max(max_sum, current_sum)
       
       return max_sum
+    
+    
+    def maxSubArray3(self, nums: List[int]) -> int:
+      max_sum = current_sum = nums[0]
+      
+      for num in nums[1:]:
+          if current_sum < 0:
+              current_sum = 0
+          current_sum += num
+          if current_sum > max_sum:
+              max_sum = current_sum
+      
+      return max_sum      
+
+    def maxSubArray4(self, nums: List[int]) -> int:
+      max_sum = current_sum = nums[0]
+      
+      for num in nums[1:]:
+          if current_sum < 0:
+              current_sum = 0
+          current_sum += num
+          max_sum = max(max_sum, current_sum)
+      
+      return max_sum
+    
+    def maxSubArray5(self, nums: List[int]) -> int:
+        sums = reduce(lambda sums, num: (max(sums[0], sums[1] + num), max(sums[1] + num, num)), nums[1:], (max(nums), nums[0]))
+        return sums[0]
+      
+
+    
+import random
+import time
+def comparePerf():
+    sol = Solution()
+    total_time = 0
+    total_time2 = 0
+    total_time3 = 0
+    total_time4 = 0
+    total_time5 = 0
+    for i in range(1000):
+        nums = [random.randint(-1000, 1000) for _ in range(random.randint(1, 10000))]
+        start = time.process_time()
+        sol.maxSubArray(nums)
+        end = time.process_time()
+        total_time += end - start
+        
+        start = time.process_time()
+        sol.maxSubArray2(nums)
+        end = time.process_time()
+        total_time2 += end - start
+        
+        start = time.process_time()
+        sol.maxSubArray3(nums)
+        end = time.process_time()
+        total_time3 += end - start
+        
+        start = time.process_time()
+        sol.maxSubArray4(nums)
+        end = time.process_time()
+        total_time4 += end - start
+        
+        start = time.process_time()
+        sol.maxSubArray5(nums)
+        end = time.process_time()
+        total_time5 += end - start
+    print (f"Average of maxSubArray took {total_time/1000} seconds to run.")
+    print (f"Average of maxSubArray2 took {total_time2/1000} seconds to run.")
+    print (f"Average of maxSubArray3 took {total_time3/1000} seconds to run.")
+    print (f"Average of maxSubArray4 took {total_time4/1000} seconds to run.")
+    print (f"Average of maxSubArray5 took {total_time5/1000} seconds to run.")
+        
+comparePerf()
+
+# Ave. for 1000 runs of nums.length <= 1000:
+# 2 e-05 sec for function1
+# 7-8 e-05 sec for function2
+# 1.5 e-05 sec for function3
+# 4.5-5 e-05 sec for function4
+# 10-11 e-05 sec for function5
+
+# Ave. for 1000 runs of nums.length <= 10000 took around 9 times as long.
+# Average of maxSubArray took 0.00017863299999999776 seconds to run.
+# Average of maxSubArray2 took 0.0007111129999999952 seconds to run.
+# Average of maxSubArray3 took 0.00013698999999999862 seconds to run.
+# Average of maxSubArray4 took 0.00042888099999999484 seconds to run.
+# Average of maxSubArray5 took 0.000991572999999997 seconds to run.
+
