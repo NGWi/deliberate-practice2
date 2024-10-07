@@ -36,12 +36,30 @@ class Solution:
       
       return max_sum    
 # Better memory, slower.
-    def maxSubArray2(self, nums: List[int]) -> int:
+    def maxSubArray2a(self, nums: List[int]) -> int:
       max_sum = current_sum = nums[0]
       
       for num in nums[1:]:
           current_sum = max(num, current_sum + num)
           max_sum = max(max_sum, current_sum)
+      
+      return max_sum
+
+    def maxSubArray2b(self, nums: List[int]) -> int:
+      max_sum = current_sum = nums[0]
+      
+      for num in nums[1:]:
+          current_sum = max(num, current_sum + num)
+          if current_sum > max_sum:
+              max_sum = current_sum
+      return max_sum
+  
+    def maxSubArray2c(self, nums: List[int]) -> int:
+      max_sum = current_sum = nums[0]
+      
+      for num in nums[1:]:
+          current_sum = max(num, current_sum + num)
+          max_sum = max(current_sum, max_sum)
       
       return max_sum
     
@@ -116,14 +134,17 @@ import time
 def comparePerf():
     sol = Solution()
     total_time = 0
-    total_time2 = 0
+    total_time2a = 0
+    total_time2b = 0
+    total_time2c = 0
     total_time3 = 0
     total_time4 = 0
     total_time5 = 0
     total_time6 = 0
     total_time7 = 0
     total_time8 = 0
-    for i in range(1000):
+    iterations = 10000
+    for i in range(iterations):
         nums = [random.randint(-1000, 1000) for _ in range(random.randint(1, 10000))]
         start = time.process_time()
         sol.maxSubArray(nums)
@@ -131,9 +152,19 @@ def comparePerf():
         total_time += end - start
         
         start = time.process_time()
-        sol.maxSubArray2(nums)
+        sol.maxSubArray2a(nums)
         end = time.process_time()
-        total_time2 += end - start
+        total_time2a += end - start
+        
+        start = time.process_time()
+        sol.maxSubArray2b(nums)
+        end = time.process_time()
+        total_time2b += end - start
+        
+        start = time.process_time()
+        sol.maxSubArray2c(nums)
+        end = time.process_time()
+        total_time2c += end - start
         
         start = time.process_time()
         sol.maxSubArray3(nums)
@@ -165,20 +196,22 @@ def comparePerf():
         end = time.process_time()
         total_time8 += end - start
         
-    print (f"Average of maxSubArray took {total_time/1000} seconds to run.")
-    print (f"Average of maxSubArray2 took {total_time2/1000} seconds to run.")
-    print (f"Average of maxSubArray3 took {total_time3/1000} seconds to run.")
-    print (f"Average of maxSubArray4 took {total_time4/1000} seconds to run.")
-    print (f"Average of maxSubArray5 took {total_time5/1000} seconds to run.")
-    print (f"Average of maxSubArray6 took {total_time6/1000} seconds to run.")
-    print (f"Average of maxSubArray7 took {total_time7/1000} seconds to run.")
-    print (f"Average of maxSubArray8 took {total_time8/1000} seconds to run.")
+    print (f"Average of maxSubArray took {total_time/iterations} seconds to run.")
+    print (f"Average of maxSubArray2a took {total_time2a/iterations} seconds to run.")
+    print (f"Average of maxSubArray2b took {total_time2b/iterations} seconds to run.")
+    print (f"Average of maxSubArray2c took {total_time2c/iterations} seconds to run.")
+    print (f"Average of maxSubArray3 took {total_time3/iterations} seconds to run.")
+    print (f"Average of maxSubArray4 took {total_time4/iterations} seconds to run.")
+    print (f"Average of maxSubArray5 took {total_time5/iterations} seconds to run.")
+    print (f"Average of maxSubArray6 took {total_time6/iterations} seconds to run.")
+    print (f"Average of maxSubArray7 took {total_time7/iterations} seconds to run.")
+    print (f"Average of maxSubArray8 took {total_time8/iterations} seconds to run.")
             
 comparePerf()
 
 # Ave. for 1000 runs of nums.length <= 1000:
 # 2 e-05 sec for function1
-# 7-8 e-05 sec for function2
+# 7-8 e-05 sec for function2a
 # 1.5 e-05 sec for function3
 # 4.5-5 e-05 sec for function4
 # 10-11 e-05 sec for function5
@@ -188,12 +221,14 @@ comparePerf()
 
 
 # Ave. for 1000 runs of nums.length <= 10000 took around 9 times as long.
-# Average of maxSubArray took 0.00017761199999999993 seconds to run.
-# Average of maxSubArray2 took 0.0007025039999999964 seconds to run.
-# Average of maxSubArray3 took 0.00013555100000000505 seconds to run. !!!!
-# Average of maxSubArray4 took 0.0004221879999999903 seconds to run.
-# Average of maxSubArray5 took 0.0009809480000000123 seconds to run.
-# Average of maxSubArray6 took 0.00013817699999999096 seconds to run.
-# Average of maxSubArray7 took 0.0001361130000000016 seconds to run. ????
-# Average of maxSubArray8 took 0.00018253600000000563 seconds to run.
+# Average of maxSubArray took 0.0001860785999999955 seconds to run.
+# Average of maxSubArray2a took 0.0007462492000000246 seconds to run.
+# Average of maxSubArray2b took 0.00043617429999999365 seconds to run.
+# Average of maxSubArray2c took 0.0007407634000000413 seconds to run.
+# Average of maxSubArray3 took 0.00014317699999995585 seconds to run.
+# Average of maxSubArray4 took 0.000445313399999978 seconds to run.
+# Average of maxSubArray5 took 0.0010340596999999971 seconds to run.
+# Average of maxSubArray6 took 0.000146263699999996 seconds to run.
+# Average of maxSubArray7 took 0.00014279200000002568 seconds to run.
+# Average of maxSubArray8 took 0.00019248230000002109 seconds to run.
 
