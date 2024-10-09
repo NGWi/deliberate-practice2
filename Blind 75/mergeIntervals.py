@@ -22,7 +22,8 @@
 # 0 <= start <= end <= 1000
 class Solution:
     def merge(self, intervals: List[List[int]]) -> List[List[int]]:
-        intervals.sort(key = lambda x: x[0])        result = []
+        intervals.sort(key = lambda x: x[0])        
+        result = []
         length = len(intervals)
         i = 0
         while i < length:
