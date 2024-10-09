@@ -50,6 +50,19 @@ class Solution:
           return False
         max_index = max(max_index, index + num)
       return True
+    def canJump4(self, nums: List[int]) -> bool:
+      last_i = len(nums) - 1
+      max_index = 0
+      index = 0
+      while max_index < last_i:
+        num = nums[index]
+        from_here = index + num
+        if from_here > max_index:
+          max_index = from_here
+        if max_index == index:
+          return False
+        index += 1
+      return True
     
 import random
 import time
@@ -58,7 +71,9 @@ def performanceTest():
     time_jump = 0
     time_jump2 = 0
     time_jump3 = 0
-    for i in range(10000):
+    time_jump4 = 0
+    times = 10000
+    for i in range(times):
         nums = [random.randint(0, 1000) for _ in range(random.randint(0, 10000))]
         start = time.time()
         s.canJump(nums)
@@ -75,15 +90,23 @@ def performanceTest():
         end = time.time()
         time_jump3 += end - start
         
-    print (f"Average of canJump took {time_jump/1000} seconds to run.")
-    print (f"Average of canJump2 took {time_jump2/1000} seconds to run.")
-    print (f"Average of canJump3 took {time_jump3/1000} seconds to run.")
+        start = time.time()
+        s.canJump4(nums)
+        end = time.time()
+        time_jump4 += end - start
+        
+    print (f"canJump took average of {time_jump/times} seconds to run.")
+    print (f"canJump2 took average of {time_jump2/times} seconds to run.")
+    print (f"canJump3 took average of {time_jump3/times} seconds to run.")
+    print (f"canJump4 took average of {time_jump4/times} seconds to run.")
     
 
 if __name__ == "__main__":
     performanceTest()
-    
-# Average of canJump took 0.004467843532562256 seconds to run.
-# Average of canJump2 took 0.004453927755355835 seconds to run.
-# Average of canJump3 took 0.004969877243041992 seconds to run.
+
+# 100000 runs (computer started to overheat)
+# canJump took average of 0.0005017874693870545 seconds to run.
+# canJump2 took average of 0.0005050669622421265 seconds to run.
+# canJump3 took average of 0.0005683367085456848 seconds to run.
+# canJump4 took average of 0.00021681216478347778 seconds to run.
         
