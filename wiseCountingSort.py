@@ -15,6 +15,52 @@ def wise_counting_sort(arr):
           min_val = num
         if num > max_val:
           max_val = num
+    # Make one pass through the range of values to construct the sorted array     
+    sorted_arr = []
+    for i in range(min_val, max_val + 1):
+        if i in count_map:
+            sorted_arr.extend([i] * count_map[i])
+
+    return sorted_arr
+
+def wise_counting_sort2(arr):
+    # Create a hash map to store the count of each integer
+    count_map = {arr[0]: 1}
+    # Make one pass through the array to count the occurrences of each integer and retrieve the min and max
+    min_val = max_val = arr[0]
+    for num in arr[1:]:
+        if num in count_map:
+            count_map[num] += 1
+        else:
+            count_map[num] = 1
+        if num < min_val: 
+          min_val = num
+        if num > max_val:
+          max_val = num
+    # Make one pass through the range of values to construct the sorted array
+    sorted_arr = []
+    curr_num = min_val
+    while curr_num <= max_val:
+        if curr_num in count_map:
+            sorted_arr.extend([curr_num] * count_map[curr_num])
+        curr_num += 1
+    
+    return sorted_arr
+  
+def wise_black_counting_sort(arr):
+    # Create a hash map to store the count of each integer
+    count_map = {}
+    min_val = float('inf')
+    max_val = float('-inf')
+
+    # Make one pass through the array to count the occurrences of each integer
+    for num in arr:
+        if num in count_map:
+            count_map[num] += 1
+        else:
+            count_map[num] = 1
+        min_val = min(min_val, num)
+        max_val = max(max_val, num)
 
     # Make one pass through the range of values to construct the sorted array
     sorted_arr = []
@@ -24,13 +70,78 @@ def wise_counting_sort(arr):
 
     return sorted_arr
   
-  
+import random
+import time
+def compare_wise_counting_sorts():
+    n = 10000
+    loops = 100
+    times = [0, 0]
+    for int_r in [100, 1000, 10000, 100000, 1000000, 10000000]:
+      print(f"int_r = {int_r}")
+      for _ in range(loops):
+          arr = [random.randint(-int_r, int_r - 1) for _ in range(n)]
+          
+          methods = [wise_counting_sort, wise_counting_sort2]
+          for i, method in enumerate(methods):
+              start_time = time.time()
+              method(arr)
+              end_time = time.time()
+              times[i] += end_time - start_time
+            
+      print(f"wise counting sort took {times[0]/loops} seconds")
+      print(f"wise counting sort 2 took {times[1]/loops} seconds")
+
+# compare_wise_counting_sorts()
+
+# int_r = 10000000
+# wise counting sort took 0.6986960196495056 seconds
+# wise black counting sort took 0.6977080583572388 seconds
+
+# int_r = 1000000
+# wise counting sort took 0.06645619869232178 seconds
+# wise black counting sort took 0.06959808588027955 seconds
+
+# int_r = 100000
+# wise counting sort took 0.06588746309280395 seconds
+# wise black counting sort took 0.06761659383773803 seconds
+
+# int_r = 10000
+# wise counting sort took 0.0017896056175231933 seconds
+# wise black counting sort took 0.002961125373840332 seconds
+
+# int_r = 1000
+# wise counting sort took 0.0009443855285644531 seconds
+# wise black counting sort took 0.0022008752822875975 seconds
+
+# int_r = 100
+# wise counting sort took 0.0007310581207275391 seconds
+# wise black counting sort took 0.0019195008277893067 seconds
+
+"""
+int_r = 100
+wise counting sort took 0.0007406640052795411 seconds
+wise counting sort 2 took 0.000728142261505127 seconds !
+int_r = 1000
+wise counting sort took 0.0019952178001403807 seconds
+wise counting sort 2 took 0.001905670166015625 seconds !
+int_r = 10000
+wise counting sort took 0.004052045345306396 seconds !
+wise counting sort 2 took 0.004087138175964356 seconds
+int_r = 100000
+wise counting sort took 0.012195165157318116 seconds !
+wise counting sort 2 took 0.014591860771179199 seconds
+int_r = 1000000
+wise counting sort took 0.08059471607208252 seconds !
+wise counting sort 2 took 0.0996627140045166 seconds
+int_r = 10000000
+wise counting sort took 0.745500750541687 seconds !
+wise counting sort 2 took 0.9280169749259949 seconds
+"""
+
+import heapq
+import bisect
+from collections import Counter
 def test_wisecounting_sort():
-    import random
-    import time
-    import heapq
-    import bisect
-    from collections import Counter
 
     def merge_sort(arr):
         if len(arr) <= 1:
@@ -105,7 +216,7 @@ def test_wisecounting_sort():
     print(f"bin sort took {times[4]/loops} seconds")
     print(f"count sort took {times[5]/loops} seconds")
 
-test_wisecounting_sort()
+# test_wisecounting_sort()
 
 # r/n
 # Repetitive numbers:
