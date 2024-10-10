@@ -205,10 +205,35 @@ class Solution:
         for t, method in zip(times, methods):
           print(method.__name__, end=' ')
           average = t/loops
-          print(f"{average} seconds")            
+          print(f"{average} seconds")          
+    def comparePerf2(self):
+        """
+        Compare the performance between the insert methods.
+        """
+        import time
+        from random import randint
+        
+        n = 1000
+        integers = 10000
+        loops = 10000
+        times = [0, 0, 0, 0, 0]
+        methods = [self.insert, self.insert2, self.insert3, self.insert4, self.insert5]
+        for _ in range(loops):
+          intervals = [[randint(0, integers), randint(0, integers)] for _ in range(n)]
+          intervals.sort()
+          newInterval = [randint(0, integers), randint(0, integers)]
+          for i, method in enumerate(methods):
+              start_time = time.time()
+              method(intervals, newInterval)
+              end_time = time.time()
+              times[i] += end_time - start_time
+        for t, method in zip(times, methods):
+          print(method.__name__, end=' ')
+          average = t/loops
+          print(f"{average} seconds")             
 if __name__ == '__main__':
     s = Solution()
-    s.comparePerf()
+    s.comparePerf2()
     
 # number size = 1000
 # insert 1.691435812972486e-06 seconds
