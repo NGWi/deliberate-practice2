@@ -219,6 +219,7 @@ def test_wisecounting_sort():
 # test_wisecounting_sort()
 
 # r/n
+# For only positive ints:
 # Repetitive numbers:
 
 # For <= 11, quick sort reaches maximum recursion depth
