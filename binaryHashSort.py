@@ -167,7 +167,7 @@ def compare_binary_hash_sorts():
       print(f"binary hash sort took {times[0]/loops} seconds")
       print(f"binary hash sort 2 took {times[1]/loops} seconds")
 
-compare_binary_hash_sorts()
+# compare_binary_hash_sorts()
 
 '''
 int_r = 100
