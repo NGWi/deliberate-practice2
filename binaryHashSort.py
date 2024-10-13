@@ -82,9 +82,7 @@ def expandTree(tree: set, layers: int) -> list:
             for child in (parent + "0", parent + "1"):
                 if child in tree:
                     child_layer.append(child)
-        parent_layer = (
-            child_layer  # Can skip last one and do while True with if i < layer. See below
-        )
+        parent_layer = child_layer  # Can skip last one and do while True with if i < layer. See below
 
     print("Parent layer: ", parent_layer)
     return parent_layer
@@ -121,6 +119,8 @@ print(binaryHashSort(example_a))
 print("-" * 10)
 print(binaryHashSort(example_b))
 print("=" * 20)
+
+
 def expandTree2(tree: set, layers: int) -> list:
     """
     We expand the layers with a BFS. The nodes are inherently ordered by 0, 1.
@@ -135,14 +135,13 @@ def expandTree2(tree: set, layers: int) -> list:
                 if child in tree:
                     child_layer.append(child)
         if layer < layers:
-          parent_layer = (
-              child_layer  # Can skip last one and do while True with if i < layer. See below
-          )
+            parent_layer = child_layer
         else:
-          print("Final parent layer: ", child_layer)
-          return child_layer 
+            print("Final parent layer: ", child_layer)
+            return child_layer
         layer += 1
-        
+
+
 def binaryHashSort2(arr):
     counted_map, min_val, max_val = countingHash(arr)
     spread = max_val - min_val
@@ -150,7 +149,8 @@ def binaryHashSort2(arr):
     tree = treeSet(arr, min_val, layers)
     last_parent_layer = expandTree2(tree, layers)
     return sortedArray(last_parent_layer, counted_map, min_val)
-  
+
+
 print(binaryHashSort2(example_a))
 print("-" * 10)
 print(binaryHashSort2(example_b))
