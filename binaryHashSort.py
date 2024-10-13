@@ -1,4 +1,4 @@
-"""
+r"""
 The idea of this sort is a level beyond wiseCountingSort. It's point is to eliminate the independant + r factor where r is the size of the range.
 I do the first pass through the array to make the wiseCounting Hash (python dict).
 Now that I have the min and max values, I make another pass to build a tree on top of the hashed values in another hash (python set). The tree has layers = int(log 2 ( max - min)). 
@@ -36,9 +36,10 @@ import math
 
 
 def countingHash(arr):
-    # Create a hash map to store the count of each integer
+    '''
+    Create a hash map to store the count of each integer, and retrieve the min and the max.
+    '''
     counted_map = {arr[0]: 1}
-    # Make one pass through the array to count the occurrences of each integer and retrieve the min and max
     min_val = max_val = arr[0]
     for num in arr[1:]:
         if num in counted_map:
@@ -50,23 +51,20 @@ def countingHash(arr):
         if num > max_val:
             max_val = num
 
-    print("Counted map: ", counted_map)
     return counted_map, min_val, max_val
 
 
-def treeSet(arr: list, offset: int, layers: int) -> set:
+def treeSet(arr: list, offset: int, layers: int) -> set: # Could also try iterating through the counted_map keys. Less entries but not array.
     """
     Build a tree on top of the hashed values in another hash (python set). The tree has layers = int(log 2 ( max - min)).
     """
     tree = set()
     for num in arr:
         binary = bin(num - offset)[2:]
-        print(binary)
         key = binary.zfill(layers + 1)
         for i in range(layers):
             key = key[:-1]
             tree.add(key)
-    print("Tree: ", tree)
     return tree
 
 
@@ -76,7 +74,6 @@ def expandTree(tree: set, layers: int) -> list:
     """
     parent_layer = [""]
     for i in range(layers):
-        print("Layer ", i, "Parent layer: ", parent_layer)
         child_layer = []
         for parent in parent_layer:
             for child in (parent + "0", parent + "1"):
@@ -84,7 +81,6 @@ def expandTree(tree: set, layers: int) -> list:
                     child_layer.append(child)
         parent_layer = child_layer  # Can skip last one and do while True with if i < layer. See below
 
-    print("Parent layer: ", parent_layer)
     return parent_layer
 
 
@@ -99,7 +95,6 @@ def sortedArray(last_parent_layer, counted_map, offset):
             if num in counted_map:
                 sorted_arr.extend([num] * counted_map[num])
 
-    print("Sorted array: ", sorted_arr)
     return sorted_arr
 
 
@@ -112,13 +107,13 @@ def binaryHashSort(arr):
     return sortedArray(last_parent_layer, counted_map, min_val)
 
 
-example_a = [0, 1, 2, 3, 4, 5, 6, 7]
-example_b = [-2, 0, -3, -1, 2]
-# print(treeSet(example_a, 0, int(math.log2(7 - 0))))
-print(binaryHashSort(example_a))
-print("-" * 10)
-print(binaryHashSort(example_b))
-print("=" * 20)
+# example_a = [0, 1, 2, 3, 4, 5, 6, 7]
+# example_b = [-2, 0, -3, -1, 2]
+# # print(treeSet(example_a, 0, int(math.log2(7 - 0))))
+# print(binaryHashSort(example_a))
+# print("-" * 10)
+# print(binaryHashSort(example_b))
+# print("=" * 20)
 
 
 def expandTree2(tree: set, layers: int) -> list:
@@ -128,7 +123,6 @@ def expandTree2(tree: set, layers: int) -> list:
     parent_layer = [""]
     layer = 1
     while True:
-        print("Layer ", layer, "Parent layer: ", parent_layer)
         child_layer = []
         for parent in parent_layer:
             for child in (parent + "0", parent + "1"):
@@ -137,11 +131,8 @@ def expandTree2(tree: set, layers: int) -> list:
         if layer < layers:
             parent_layer = child_layer
         else:
-            print("Final parent layer: ", child_layer)
             return child_layer
         layer += 1
-
-
 def binaryHashSort2(arr):
     counted_map, min_val, max_val = countingHash(arr)
     spread = max_val - min_val
@@ -151,6 +142,50 @@ def binaryHashSort2(arr):
     return sortedArray(last_parent_layer, counted_map, min_val)
 
 
-print(binaryHashSort2(example_a))
-print("-" * 10)
-print(binaryHashSort2(example_b))
+# print(binaryHashSort2(example_a))
+# print("-" * 10)
+# print(binaryHashSort2(example_b))
+
+import random
+import time
+def compare_binary_hash_sorts():
+    n = 10000
+    loops = 1000
+    times = [0, 0]
+    for int_r in [100, 1000, 10000, 100000, 1000000, 10000000]:
+      print(f"int_r = {int_r}")
+      for _ in range(loops):
+          arr = [random.randint(-int_r, int_r - 1) for _ in range(n)]
+          
+          methods = [binaryHashSort, binaryHashSort2]
+          for i, method in enumerate(methods):
+              start_time = time.time()
+              method(arr)
+              end_time = time.time()
+              times[i] += end_time - start_time
+            
+      print(f"binary hash sort took {times[0]/loops} seconds")
+      print(f"binary hash sort 2 took {times[1]/loops} seconds")
+
+compare_binary_hash_sorts()
+
+'''
+int_r = 100
+binary hash sort took 0.006196232557296753 seconds
+binary hash sort 2 took 0.006134189367294311 seconds !
+int_r = 1000
+binary hash sort took 0.014297526359558105 seconds
+binary hash sort 2 took 0.01420565152168274 seconds !
+int_r = 10000
+binary hash sort took 0.03198292970657349 seconds
+binary hash sort 2 took 0.031715054750442506 seconds !
+int_r = 100000
+binary hash sort took 0.05809140777587891 seconds
+binary hash sort 2 took 0.05797604608535767 seconds !
+int_r = 1000000
+binary hash sort took 0.09291549491882324 seconds !
+binary hash sort 2 took 0.09309216022491455 seconds
+int_r = 10000000
+binary hash sort took 0.13956562399864197 seconds !
+binary hash sort 2 took 0.13973849058151244 seconds
+'''

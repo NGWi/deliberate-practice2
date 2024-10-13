@@ -138,6 +138,7 @@ wise counting sort took 0.745500750541687 seconds !
 wise counting sort 2 took 0.9280169749259949 seconds
 """
 
+from binaryHashSort import countingHash, treeSet, expandTree, sortedArray, binaryHashSort
 import heapq
 import bisect
 from collections import Counter
