@@ -2,8 +2,8 @@ r"""
 The idea of this sort is a level beyond wiseCountingSort. It's point is to eliminate the independant + r factor where r is the size of the range.
 I do the first pass through the array to make the wiseCounting Hash (python dict).
 Now that I have the min and max values, I make another pass to build a tree on top of the hashed values in another hash (python set). The tree has layers = int(log 2 ( max - min)). 
-Each node is a binary key it will equal the lowest of its two children with the last digit removed, and, correspondingly will have a length of 1 more than its parent node. If neither of its children exist then it wouldn't either exist.
-The we expand the layers with a BFS. The nodes are inherently ordered by 0, 1. When we have expanded it by `layers` then we append the occurences of the end numbers to the sorted array as in WiseCountingSort.
+Each node is a binary key. It will equal the lowest of its two children with the last digit removed, and, correspondingly will have a length of 1 more than its parent node. If neither of its children exist then it wouldn't either exist.
+The we expand the layers one layer at a time breadth-first. The nodes are inherently ordered by 0, 1. When we have expanded it by `layers` then we append the occurences of the end numbers to the sorted array as in WiseCountingSort.
 
 Example input = [3,5,2,4,1,0,6,7]
 Example hashes = {3: 1, 5: 1, 2: 1, 4: 1, 1: 1, 0: 1, 6: 1, 7: 1} . 
