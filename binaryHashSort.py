@@ -70,7 +70,7 @@ def treeSet(arr: list, offset: int, layers: int) -> set: # Could also try iterat
 
 def expandTree(tree: set, layers: int) -> list:
     """
-    We expand the layers with a BFS. The nodes are inherently ordered by 0, 1.
+    We expand the layers one at a time (breadth-first). The nodes are inherently ordered by 0, 1.
     """
     parent_layer = [""]
     for i in range(layers):
@@ -189,3 +189,25 @@ int_r = 10000000
 binary hash sort took 0.13956562399864197 seconds !
 binary hash sort 2 took 0.13973849058151244 seconds
 '''
+import timeit
+import matplotlib.pyplot as plt
+
+ns = [100, 200, 300, 1000, 2000, 3000, 10000, 20000, 30000, 100000, 200000, 300000, 1000000, 2000000, 3000000]
+times = []
+loops = 10
+for n in ns:
+    print("Calculating for n = ", n)
+    time = 0
+    for _ in range(loops):
+      arr = [random.randint(-n, n - 1) for _ in range(n)]
+      time += timeit.timeit(lambda: binaryHashSort(arr), number=1)
+    
+    print("time = ", time/loops)
+    times.append(time/n)
+
+print("Plotting results")
+plt.plot(ns, times)
+plt.xlabel('n')
+plt.ylabel('time')
+plt.title('binaryHashSort performance')
+plt.show()
