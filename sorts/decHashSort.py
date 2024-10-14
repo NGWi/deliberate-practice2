@@ -44,7 +44,7 @@ def countingHash(arr: list) -> tuple:
             counted_map[num] = 1
         if num < min_val:
             min_val = num
-        if num > max_val:
+        if num > max_val: # Is it more efficient by min and maxjust to compare length to cut down on the overwrites? Only if treeSet won't crash for layers = 0?
             max_val = num
 
     return counted_map, min_val, max_val
