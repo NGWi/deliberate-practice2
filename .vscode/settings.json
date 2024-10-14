@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.jbuilder": "ruby",
+    "khash.h": "c"
+  }
+}

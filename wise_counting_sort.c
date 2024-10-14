@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <khash.h>
+#include "../../Documents/klib-master/khash.h"
 
+// Declare the hash table at the top-level of the file
+KHASH_MAP_INIT_INT(count_map, int);
 // Function to perform wise counting sort
 void wise_counting_sort(int* arr, int n) {
     // Create a hash table to store the count of each integer
-    KHASH_MAP_INIT_INT(count_map, int);
     khint_t k;
     int i, min_val, max_val;
 
@@ -26,6 +27,7 @@ void wise_counting_sort(int* arr, int n) {
 
     // Count the occurrences of each integer
     for (i = 0; i < n; i++) {
+        int ret_val;
         k = kh_put(count_map, hash, arr[i], &ret_val);
         if (k == kh_end(hash)) {
             // If the key is not present, add it to the hash table
