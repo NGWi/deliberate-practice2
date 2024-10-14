@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../Documents/klib-master/khash.h"
+#include "../../../Documents/klib-master/khash.h"
 
 // Declare the hash table at the top-level of the file
 KHASH_MAP_INIT_INT(count_map, int);
