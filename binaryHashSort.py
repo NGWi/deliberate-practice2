@@ -1,5 +1,5 @@
 r"""
-The idea of this sort is a level beyond wiseCountingSort. It's point is to eliminate the independant + r factor where r is the size of the range.
+The idea of this sort is a level beyond wiseCountingSort. It's point is to eliminate the independent + r factor where r is the size of the range.
 I do the first pass through the array to make the wiseCounting Hash (python dict).
 Now that I have the min and max values, I make another pass to build a tree on top of the hashed values in another hash (python set). The tree has layers = int(log 2 ( max - min)). 
 Each node is a binary key. It will equal the lowest of its two children with the last digit removed, and, correspondingly will have a length of 1 more than its parent node. If neither of its children exist then it wouldn't either exist.
@@ -152,9 +152,9 @@ def binaryHashSort2(arr):
 # print("-" * 10)
 # print(binaryHashSort2(example_b))
 
+import random
+import time
 def compare_binary_hash_sorts():
-    import random
-    import time
     n = 10000
     loops = 1000
     times = [0, 0]

@@ -138,12 +138,38 @@ wise counting sort took 0.745500750541687 seconds !
 wise counting sort 2 took 0.9280169749259949 seconds
 """
 
-from binaryHashSort import countingHash, treeSet, expandTree, sortedArray, binaryHashSort as binary_hash_sort
+from binaryHashSort import binaryHashSort as binary_hash_sort
+from decHashSort import decHashSort as dec_hash_sort
 import heapq
 import bisect
 from collections import Counter
 def test_wisecounting_sort():
+    def count_sort(arr):
+        count_map = Counter(arr)
+        sorted_arr = []
+        for num in range(min(arr), max(arr) + 1):
+            sorted_arr.extend([num] * count_map[num])
+        return sorted_arr
 
+    def radix_sort(arr):
+        RADIX = 10
+        placement = 1
+        max_digit = max(arr)
+
+        while placement < max_digit:
+            buckets = [list() for _ in range(RADIX)]
+            for i in arr:
+                tmp = int((i / placement) % RADIX)
+                buckets[tmp].append(i)
+            a = 0
+            for b in range(RADIX):
+                buck = buckets[b]
+                for i in buck:
+                    arr[a] = i
+                    a += 1
+            placement *= RADIX
+        return arr
+    
     def merge_sort(arr):
         if len(arr) <= 1:
             return arr
@@ -189,21 +215,14 @@ def test_wisecounting_sort():
             sorted_arr.insert(idx, num)
         return sorted_arr
 
-    def count_sort(arr):
-        count_map = Counter(arr)
-        sorted_arr = []
-        for num in range(min(arr), max(arr) + 1):
-            sorted_arr.extend([num] * count_map[num])
-        return sorted_arr
-
-    n = 20000
+    n = 100000
     loops = 100  
-    for int_r in [100, 1000, 10000, 100000, 200000]:
-        times = [0, 0, 0, 0, 0, 0, 0]
+    for int_r in [150000, 200000, 250000, 300000]:
+        times = [0, 0, 0, 0, 0, 0, 0, 0]
         print(f"int_r = {int_r}")
         for _ in range(loops):
             arr = [random.randint(-int_r, int_r - 1) for _ in range(n)]
-            methods = [wise_counting_sort, binary_hash_sort, merge_sort, quick_sort, heap_sort, count_sort]
+            methods = [wise_counting_sort, count_sort, binary_hash_sort, dec_hash_sort, radix_sort, merge_sort, heap_sort, bin_sort]
             for i, method in enumerate(methods):
                 start_time = time.time()
                 method(arr)
@@ -211,19 +230,23 @@ def test_wisecounting_sort():
                 times[i] += end_time - start_time
             
         print(f"wise counting sort took {times[0]/loops} seconds")
-        print(f"binary hash sort took {times[1]/loops} seconds")
-        print(f"merge sort took {times[2]/loops} seconds")
-        print(f"quick sort took {times[3]/loops} seconds")
-        print(f"heap sort took {times[4]/loops} seconds")
-        print(f"count sort took {times[5]/loops} seconds")
-
+        print(f"count sort took {times[1]/loops} seconds")
+        print(f"binary hash sort took {times[2]/loops} seconds")
+        print(f"dec hash sort took {times[3]/loops} seconds")
+        print(f"radix sort took {times[4]/loops} seconds")
+        print(f"merge sort took {times[5]/loops} seconds")
+        # print(f"quick sort took {times[6]/loops} seconds")
+        print(f"heap sort took {times[6]/loops} seconds")
+        print(f"bin sort took {times[7]/loops} seconds")
+        
 test_wisecounting_sort()
 
 # r/n
 # For only positive ints:
 # Repetitive numbers:
 
-# For <= 11, quick sort reaches maximum recursion depth
+# For <= 11, quick sort reaches maximum recursion depth.
+# Same for n = 500000 and int_r = 100.+-
 # 12/10000
 # wise counting sort took 0.0005418586730957031 seconds
 # merge sort took 0.010829219818115235 seconds
@@ -473,4 +496,85 @@ quick sort took 0.0452589750289917 seconds
 heap sort took 0.012852234840393066 seconds
 bin sort took 0.31387016296386716 seconds ?
 count sort took 0.027507736682891845 seconds
+'''
+''' 
+for n = 100000
+int_r = 100
+wise counting sort took 0.007589132785797119 seconds
+binary hash sort took 0.06214733839035034 seconds
+dec hash sort took 0.028156325817108155 seconds
+merge sort took 0.14259565353393555 seconds
+quick sort took 0.7983507609367371 seconds
+heap sort took 0.02364750385284424 seconds
+count sort took 0.0056849527359008785 seconds
+int_r = 1000
+wise counting sort took 0.007257547378540039 seconds
+binary hash sort took 0.07748674392700196 seconds
+dec hash sort took 0.0357969880104065 seconds
+merge sort took 0.142030029296875 seconds
+quick sort took 0.15669968366622924 seconds
+heap sort took 0.028242263793945312 seconds
+count sort took 0.005272176265716553 seconds
+int_r = 10000
+wise counting sort took 0.00913733959197998 seconds
+binary hash sort took 0.11342888355255126 seconds
+dec hash sort took 0.04522015810012817 seconds
+merge sort took 0.13917894124984742 seconds
+quick sort took 0.10239872455596924 seconds
+heap sort took 0.02806950092315674 seconds
+count sort took 0.007026398181915283 seconds
+int_r = 100000
+wise counting sort took 0.019667155742645263 seconds
+binary hash sort took 0.18414395809173584 seconds
+dec hash sort took 0.08656525611877441 seconds
+merge sort took 0.13729483604431153 seconds
+quick sort took 0.09556241512298584 seconds
+heap sort took 0.027419207096099855 seconds
+count sort took 0.029933125972747804 seconds
+int_r = 1000000
+wise counting sort took 0.06746742486953736 seconds
+binary hash sort took 0.34703328609466555 seconds
+dec hash sort took 0.21001242399215697 seconds
+merge sort took 0.1338896131515503 seconds
+quick sort took 0.09361958503723145 seconds
+heap sort took 0.02716545104980469 seconds
+count sort took 0.25783729553222656 seconds
+'''
+'''for n=100000
+int_r = 150000
+wise counting sort took 0.026001784801483154 seconds
+count sort took 0.04669290781021118 seconds
+binary hash sort took 0.22776042699813842 seconds
+dec hash sort took 0.10844118356704711 seconds
+radix sort took 0.06329371213912964 seconds
+merge sort took 0.09022497177124024 seconds
+heap sort took 0.02040376663208008 seconds
+bin sort took 1.1894132995605469 seconds
+int_r = 200000
+wise counting sort took 0.02539945363998413 seconds
+count sort took 0.05574319362640381 seconds
+binary hash sort took 0.23342375040054322 seconds
+dec hash sort took 0.11827208518981934 seconds
+radix sort took 0.06512683153152465 seconds
+merge sort took 0.08950021505355835 seconds
+heap sort took 0.0201138973236084 seconds
+bin sort took 1.1490886092185975 seconds
+int_r = 250000
+wise counting sort took 0.029422826766967773 seconds
+count sort took 0.06845591306686401 seconds
+binary hash sort took 0.2594465684890747 seconds
+dec hash sort took 0.13001112937927245 seconds
+radix sort took 0.0627887201309204 seconds
+merge sort took 0.09124549865722656 seconds
+heap sort took 0.02189523935317993 seconds
+bin sort took 1.1610770845413207 seconds
+int_r = 300000
+wise counting sort took 0.03213505268096924 seconds
+count sort took 0.08123610734939575 seconds
+binary hash sort took 0.2540627193450928 seconds
+dec hash sort took 0.13851625442504883 seconds
+radix sort took 0.06436794996261597 seconds
+merge sort took 0.09122348308563233 seconds
+heap sort took 0.020716807842254638 seconds
+bin sort took 1.1510496473312377 seconds
 '''
