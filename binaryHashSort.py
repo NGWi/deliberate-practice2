@@ -24,12 +24,12 @@ Tree-like visualization:
  Example B = [-2, 0, -3, -1, 2]
  
  Tree-like visualization:
-      /        \
-     0          1
-       \       / \
-       01    10   11
-       / \   / \    \
-      -3 -2 -1  0    2
+        /        \
+       0          1
+     /   \       /  
+  00      01    10     
+ /   \    / \     \     
+-3   -2  -1  0     2     
 """
 
 import math
