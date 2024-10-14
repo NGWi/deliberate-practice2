@@ -35,7 +35,7 @@ Tree-like visualization:
 import math
 
 
-def countingHash(arr):
+def countingHash(arr: list) -> tuple:
     '''
     Create a hash map to store the count of each integer, and retrieve the min and the max.
     '''
@@ -98,7 +98,7 @@ def sortedArray(last_parent_layer, counted_map, offset):
     return sorted_arr
 
 
-def binaryHashSort(arr):
+def binaryHashSort(arr: list) -> list:
     counted_map, min_val, max_val = countingHash(arr)
     spread = max_val - min_val
     layers = int(math.log2(spread))
@@ -109,10 +109,16 @@ def binaryHashSort(arr):
 
 # example_a = [0, 1, 2, 3, 4, 5, 6, 7]
 # example_b = [-2, 0, -3, -1, 2]
-# # print(treeSet(example_a, 0, int(math.log2(7 - 0))))
+# example_c = [15, 3, 14, 7, 3, 9, 3, 7, 8, 0, 12, 11, 16, 8, 15, 10, 15, 9, 14, 5]
+# example_d = [3, -12, 2, 9, -6, 14, -7, -4, -19, -5, -12, 2, -8, 15, 6, 18, 2, 11, -2, -2]
+# # # print(treeSet(example_a, 0, int(math.log2(7 - 0))))
 # print(binaryHashSort(example_a))
 # print("-" * 10)
 # print(binaryHashSort(example_b))
+# print("-" * 10)
+# print(binaryHashSort(example_c))
+# print("-" * 10)
+# print(binaryHashSort(example_d))
 # print("=" * 20)
 
 
@@ -146,9 +152,9 @@ def binaryHashSort2(arr):
 # print("-" * 10)
 # print(binaryHashSort2(example_b))
 
-import random
-import time
 def compare_binary_hash_sorts():
+    import random
+    import time
     n = 10000
     loops = 1000
     times = [0, 0]
@@ -189,25 +195,26 @@ int_r = 10000000
 binary hash sort took 0.13956562399864197 seconds !
 binary hash sort 2 took 0.13973849058151244 seconds
 '''
-import timeit
-import matplotlib.pyplot as plt
+def plot_binary_hash_sort_performance():
+  import timeit
+  import matplotlib.pyplot as plt
 
-ns = [100, 200, 300, 1000, 2000, 3000, 10000, 20000, 30000, 100000, 200000, 300000, 1000000, 2000000, 3000000]
-times = []
-loops = 10
-for n in ns:
-    print("Calculating for n = ", n)
-    time = 0
-    for _ in range(loops):
-      arr = [random.randint(-n, n - 1) for _ in range(n)]
-      time += timeit.timeit(lambda: binaryHashSort(arr), number=1)
-    
-    print("time = ", time/loops)
-    times.append(time/n)
+  ns = [100, 200, 300, 1000, 2000, 3000, 10000, 20000, 30000, 100000, 200000, 300000, 1000000, 2000000, 3000000]
+  times = []
+  loops = 10
+  for n in ns:
+      print("Calculating for n = ", n)
+      time = 0
+      for _ in range(loops):
+        arr = [random.randint(-n, n - 1) for _ in range(n)]
+        time += timeit.timeit(lambda: binaryHashSort(arr), number=1)
+      
+      print("time = ", time/loops)
+      times.append(time/n)
 
-print("Plotting results")
-plt.plot(ns, times)
-plt.xlabel('n')
-plt.ylabel('time')
-plt.title('binaryHashSort performance')
-plt.show()
+  print("Plotting results")
+  plt.plot(ns, times)
+  plt.xlabel('n')
+  plt.ylabel('time')
+  plt.title('binaryHashSort performance')
+  plt.show()

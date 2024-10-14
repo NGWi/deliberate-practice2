@@ -31,7 +31,7 @@ Tree-like visualization:
 import math
 
 
-def countingHash(arr):
+def countingHash(arr: list) -> tuple:
     '''
     Create a hash map to store the count of each integer, and retrieve the min and the max.
     '''
@@ -57,10 +57,11 @@ def treeSet(arr: list, offset: int, layers: int) -> set: # Could also try iterat
     tree = set()
     for num in arr:
         offset_num = num - offset
-        key = str(offset_num).zfill(layers)
+        key = str(offset_num).zfill(layers + 1) 
         for _ in range(layers):
+            key = key[:-1]  # Have to think of a way to start with a layers length string and just not cut off before the first.
             tree.add(key)
-            key = key[:-1]
+            
     return tree
 
 
@@ -81,7 +82,7 @@ def expandTree(tree: set, layers: int) -> list:
     return parent_layer
 
 
-def sortedArray(last_parent_layer, counted_map, offset):
+def sortedArray(last_parent_layer: list, counted_map: dict, offset: int) -> list:
     """
     Make one pass through the parent_layer to construct the sorted array.
     """
@@ -95,8 +96,13 @@ def sortedArray(last_parent_layer, counted_map, offset):
 
     return sorted_arr
 
-
-def decHashSort(arr):
+def shortArr(counted_map: dict, min_val: int, max_val: int) -> list:
+    short_arr = []
+    for i in range(min_val, max_val + 1):
+        if i in counted_map:
+            short_arr.extend([i] * counted_map[i])
+    return short_arr
+def decHashSort(arr: list) -> list:
     counted_map, min_val, max_val = countingHash(arr)
     spread = max_val - min_val
     if spread != 0: 
@@ -105,12 +111,7 @@ def decHashSort(arr):
       last_parent_layer = expandTree(tree, layers)
       return sortedArray(last_parent_layer, counted_map, min_val)
     else:
-      short_arr = []
-      for i in range(min_val, max_val + 1):
-          if i in counted_map:
-              short_arr.extend([i] * counted_map[i])
-      return short_arr
-
+      return shortArr(counted_map, min_val, max_val)
 
 example_a = [15, 3, 14, 7, 3, 9, 3, 7, 8, 0, 12, 11, 16, 8, 15, 10, 15, 9, 14, 5]
 example_b = [3, -12, 2, 9, -6, 14, -7, -4, -19, -5, -12, 2, -8, 15, 6, 18, 2, 11, -2, -2]
