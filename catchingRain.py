@@ -30,11 +30,12 @@ Submissions
 Acceptance Rate
 63.5%
 """
+
 from typing import List
 
 
 class Solution:
-    # My first solution (O(3*n)):
+    # My first solution (O(3*n), 25-27 ms, 19.7-20.2 MB):
     def trap(self, height: List[int]) -> int:
         width = len(height)
         memo = [[0, 0, 0] for w in range(width)]
@@ -63,9 +64,9 @@ class Solution:
             water = water_height - record[1]
             total_water += water
 
-        return (total_water)
+        return total_water
 
-    # My second, faster runtime (O(2*n)), solution:
+    # My second, faster runtime (O(2*n)), solution (19-25 ms, 19.7-19.9 MB):
     def trap2(self, height: List[int]) -> int:
         width = len(height)
         memo = [[0, 0] for w in range(width)]
@@ -90,4 +91,40 @@ class Solution:
             water = elevation - record[1]
             total_water += water
 
-        return (total_water)
+        return total_water
+
+    # Codeium solution (26 - 33 ms, 18.3-18.4 MB):
+    def trap3(self, height: List[int]) -> int:
+        n = len(height)
+        left = [0] * n
+        right = [0] * n
+        left[0] = height[0]
+        right[n - 1] = height[n - 1]
+        for i in range(1, n):
+            left[i] = max(left[i - 1], height[i])
+        for i in range(n - 2, -1, -1):
+            right[i] = max(right[i + 1], height[i])
+        return sum(min(l, r) - height[i] for i, (l, r) in enumerate(zip(left, right)))
+
+    # Codeium optimization of my second solution (1 - 3 ms, 18.2-18.4 MB):
+    def trap4(self, height: List[int]) -> int:
+        width = len(height)
+        left, right = 0, width - 1
+        left_max, right_max = 0, 0
+        total_water = 0
+
+        while left < right:
+            if height[left] < height[right]:
+                if height[left] >= left_max:
+                    left_max = height[left]
+                else:
+                    total_water += left_max - height[left]
+                left += 1
+            else:
+                if height[right] >= right_max:
+                    right_max = height[right]
+                else:
+                    total_water += right_max - height[right]
+                right -= 1
+
+        return total_water
