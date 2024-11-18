@@ -128,3 +128,29 @@ class Solution:
                 right -= 1
 
         return total_water
+
+    # My third solution (3-11 ms, 18.4-18.5 MB):
+    def trap5(self, height: List[int]) -> int:
+        width = len(height)
+        highest_l = highest_r = 0
+        memo = []
+
+        for i in range(width):
+            h = height[i]
+            if h > highest_l:
+                highest_l = h
+            memo.append(highest_l)
+
+        total_water = 0
+        for i in range(width - 1, -1, -1):
+            h = height[i]
+            if h > highest_r:
+                highest_r = h
+
+            elevation = memo[i]
+            if elevation > highest_r:
+                elevation = highest_r
+            water = elevation - h
+            total_water += water
+
+        return total_water
