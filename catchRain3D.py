@@ -167,3 +167,5 @@ class Solution:
                 if drainage > height:
                     water = drainage - height
                     total_water += water
+
+        return total_water
