@@ -1,5 +1,5 @@
 """
-Given an m x n integer matrix heightMap representing the height of each unit 
+Given an m x n integer matrix heightMap representing the height of each unit
 cell in a 2D elevation map, return the volume of water it can trap after raining.
 
 Example 1:
@@ -99,7 +99,7 @@ class Solution:
                     total_water += water
 
         return total_water
-    
+
     # Second solution, O(n log n) (8 ms, 45.6-45.7 MB):
     def trapRainWater2(self, heightMap: List[List[int]]) -> int:
         rows = len(heightMap)
@@ -169,3 +169,53 @@ class Solution:
                     total_water += water
 
         return total_water
+
+    def trapRainWaterCodeium(self, heightMap: List[List[int]]) -> int:
+        """
+        Uses a min-heap to process cells in order of height.
+        Time: O(mn log(m+n)) where m,n are dimensions - we process each cell once with heap operations
+        Space: O(m+n) - we only store the border cells in heap and visited set
+        """
+        from heapq import heappush, heappop
+
+        if not heightMap or not heightMap[0]:
+            return 0
+
+        m, n = len(heightMap), len(heightMap[0])
+        heap = []  # min-heap of (height, row, col)
+        visited = set()  # track processed cells
+
+        # Add border cells to heap and visited set
+        for i in range(m):
+            heappush(heap, (heightMap[i][0], i, 0))
+            heappush(heap, (heightMap[i][n-1], i, n-1))
+            visited.add((i, 0))
+            visited.add((i, n-1))
+        for j in range(1, n-1):
+            heappush(heap, (heightMap[0][j], 0, j))
+            heappush(heap, (heightMap[m-1][j], m-1, j))
+            visited.add((0, j))
+            visited.add((m-1, j))
+
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        water = 0
+        max_height = 0  # tracks minimum height that can contain water
+
+        # Process cells from lowest to highest
+        while heap:
+            height, row, col = heappop(heap)
+            max_height = max(max_height, height)  # update containing wall height
+
+            # Check all adjacent cells
+            for dx, dy in directions:
+                new_row, new_col = row + dx, col + dy
+                if (new_row, new_col) not in visited and \
+                   0 <= new_row < m and 0 <= new_col < n:
+                    visited.add((new_row, new_col))
+                    curr_height = heightMap[new_row][new_col]
+                    # If lower than max_height, it will trap water
+                    if curr_height < max_height:
+                        water += max_height - curr_height
+                    heappush(heap, (curr_height, new_row, new_col))
+
+        return water
