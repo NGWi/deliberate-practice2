@@ -170,6 +170,7 @@ class Solution:
 
         return total_water
 
+    # 140 ms, 24 MB
     def trapRainWaterCodeium(self, heightMap: List[List[int]]) -> int:
         """
         Uses a min-heap to process cells in order of height.
