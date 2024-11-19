@@ -117,14 +117,13 @@ class Solution:
 
             memo.append(mid_drainage)
         memo.append(edge_drainage)
-        for row in memo: print(row)
+        # for row in memo: print(row)
 
         def limit_adjacent(starting_x: int, starting_y: int, h: int) -> None:
             """
             Alters memo and processed.
             Also reads max_x and max_y.
             """
-            processed.add((starting_x, starting_y))
             limit = memo[starting_x][starting_y]
             new_limit = max(h, limit)
             adjacent_cells = []
@@ -141,9 +140,8 @@ class Solution:
                 cell_y = cell[1]
                 if memo[cell_x][cell_y] > new_limit:
                     memo[cell_x][cell_y] = new_limit
-                    if (cell_x, cell_y) not in processed:
-                        h = heightMap[cell_x][cell_y]
-                        limit_adjacent(cell_x, cell_y, h)
+                    h = heightMap[cell_x][cell_y]
+                    limit_adjacent(cell_x, cell_y, h)
 
         indexedBorders = []
         for y in range(1, max_y):
@@ -158,11 +156,10 @@ class Solution:
             indexedBorders.append([h, x, max_y])
         sortedBorders = sorted(indexedBorders, key=lambda x: x[0])
 
-        processed = set()
         for h, x, y in sortedBorders:
             limit_adjacent(x, y, h)
 
-        for row in memo: print(row)
+        # for row in memo: print(row)
 
         total_water = 0
         for row_hs, row_ds in zip(heightMap, memo):
@@ -170,5 +167,3 @@ class Solution:
                 if drainage > height:
                     water = drainage - height
                     total_water += water
-
-        return total_water
