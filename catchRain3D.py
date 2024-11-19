@@ -121,7 +121,7 @@ class Solution:
 
         def limit_adjacent(starting_x: int, starting_y: int, h: int) -> None:
             """
-            Alters memo and processed.
+            Alters memo.
             Also reads max_x and max_y.
             """
             limit = memo[starting_x][starting_y]
