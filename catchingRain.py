@@ -154,3 +154,61 @@ class Solution:
             total_water += water
 
         return total_water
+
+    # Slightly more optimized, perhaps:
+    def trap6(self, height: List[int]) -> int:
+        width = len(height)
+        highest_l = height[0]
+        highest_r = height.pop()
+        memo = []
+
+        for h in height[1:]:
+            if h > highest_l:
+                highest_l = h
+            memo.append(highest_l)
+
+
+        total_water = 0
+        for i in range(width - 2, 0, -1):
+            h = height[i]
+            if h > highest_r:
+                highest_r = h
+
+            elevation = memo[i - 1]
+            if elevation > highest_r:
+                elevation = highest_r
+            water = elevation - h
+            total_water += water
+
+        return(total_water)   
+
+    # Codeium solution (3 - 14 ms, 18.3-18.4 MB)
+    def trap7(self, height: List[int]) -> int:
+        width = len(height)
+        highest_l = height[0]
+        highest_r = height[-1]
+        total_water = 0
+
+        l = 1
+        r = width - 2
+
+        while l <= r:
+            if height[l-1] > highest_l:
+                highest_l = height[l-1]
+            if height[r+1] > highest_r:
+                highest_r = height[r+1]
+            
+            if highest_l <= highest_r:
+                if height[l] >= highest_l:
+                    highest_l = height[l]
+                else:
+                    total_water += highest_l - height[l]
+                l += 1
+            else:
+                if height[r] >= highest_r:
+                    highest_r = height[r]
+                else:
+                    total_water += highest_r - height[r]
+                r -= 1
+
+        return total_water
