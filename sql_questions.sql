@@ -119,3 +119,65 @@ INNER JOIN problems
 WHERE difficulty in ("medium", "hard") AND score = 100
 GROUP BY nickname
 HAVING COUNT(DISTINCT submissions.problem_id) >= 60
+
+-- https://neetcode.io/problems/sql-default-values
+-- Default Values
+-- Table columns can have default values. When inserting rows into a table it's possible to omit values for some columns. The database will automatically insert NULL for those columns, unless a default value is specified. You can specify a default value for a column when creating a table.
+
+-- CREATE TABLE users (
+--     name TEXT DEFAULT 'Anonymous',
+--     email TEXT,
+--     age INTEGER DEFAULT 18
+-- );
+-- In the above example, the name column has a default value of 'Anonymous', and the age column has a default value of 18. The email column does not have a default value, so it will be NULL if no value is provided.
+
+-- You can specify a default value by using the DEFAULT keyword followed by the value you want to set.
+
+-- To 'drop' a column, means to remove it from the table.
+-- Challenge
+-- Create a table called videos with the following columns:
+
+-- id of type INTEGER with no default value
+-- name of type TEXT with a default value of 'Untitled'
+-- is_published of type BOOLEAN with a default value of false
+BEGIN TRANSACTION;
+CREATE TABLE videos (
+    id INTEGER,
+    name TEXT DEFAULT 'Untitled',
+    is_published BOOLEAN DEFAULT false
+)
+;
+SAVEPOINT created_table;
+
+-- The below section will cause the wrong answer to be returned, but is probably a better practice in real life.
+CREATE OR REPLACE FUNCTION set_default_id()
+RETURNS TRIGGER AS 
+$$
+BEGIN
+    IF NEW.id IS NULL THEN
+        SELECT COALESCE(MAX(id), 0) + 1 INTO NEW.id FROM videos;
+    END IF;
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+CREATE TRIGGER before_insert_videos
+BEFORE INSERT ON videos
+FOR EACH ROW EXECUTE FUNCTION set_default_id();
+SAVEPOINT created_trigger_fuction;
+-- End better practice section --
+
+-- Do not modify below this line --
+INSERT INTO videos (id, name, is_published) 
+VALUES (1, 'My Video', true),
+       (2, 'Another Video', false);
+
+INSERT INTO videos (id)
+VALUES (3),
+       (4);
+
+INSERT INTO videos (name)
+VALUES ('Video with no ID');
+
+SELECT * FROM videos;
+ROLLBACK;
