@@ -213,7 +213,7 @@ JOIN projects           ON employees_projects.project_id = projects.id
   AND projects.budget = ProjectRanks.budget
 ORDER BY department_name, budget DESC;
 
--- More efficient solution that sorts first O(n log n)
+-- More efficient solution that sorts first O(n log n). Handles tied for third in O(n log n) like DENSE_RANK()
 WITH OrderedProjects AS (
   SELECT 
     departments.id AS department_id,
