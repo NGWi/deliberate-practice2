@@ -403,3 +403,31 @@ CROSS JOIN LATERAL (
     LIMIT 3
 ) AS department_projects
 ORDER BY departments.name;
+
+-- Final solution using DENSE_RANK() window function
+WITH ranked AS (
+  SELECT DISTINCT
+    departments.name AS department, 
+    projects.title AS project, 
+    projects.budget,
+    DENSE_RANK() OVER (PARTITION BY departments.id ORDER BY projects.budget DESC) as budget_rank
+  FROM departments
+  JOIN employees ON departments.id = employees.department_id
+  JOIN employees_projects ON employees.id = employees_projects.employee_id
+  JOIN projects ON employees_projects.project_id = projects.id
+),
+top_two AS (
+  -- Get count of projects in ranks 1-2 for each department
+  SELECT department, COUNT(*) as projects_in_top_2
+  FROM ranked
+  WHERE budget_rank <= 2
+  GROUP BY department
+)
+SELECT ranked.department AS department, 
+       ranked.project AS project, 
+       ranked.budget
+FROM ranked
+JOIN top_two ON ranked.department = top_two.department
+WHERE ranked.budget_rank <= 2  -- Always include ranks 1 and 2
+   OR (ranked.budget_rank = 3 AND top_two.projects_in_top_2 < 3)  -- Include ALL rank 3 if needed
+ORDER BY ranked.department, ranked.budget DESC, ranked.project;
