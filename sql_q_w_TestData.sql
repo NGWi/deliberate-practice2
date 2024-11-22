@@ -115,7 +115,7 @@ CROSS JOIN LATERAL (
 ORDER BY departments.name, budget DESC;
 
 -- A #2)
--- Solution using DENSE_RANK() window function that keeps all tied-for-third.
+-- Solution using DENSE_RANK() window function that keeps all tied-for-third. Will include second place even if there are 3+ at first place.
 WITH ranked AS (
   SELECT DISTINCT
     departments.name AS department, 
