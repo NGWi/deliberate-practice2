@@ -390,4 +390,16 @@ green  | medium
 green  | large
 */
 
---Solution
+--Solution like ROW_NUMBER()
+SELECT departments.name, department_projects.title, department_projects.budget
+FROM departments
+CROSS JOIN LATERAL (
+    SELECT projects.title, budget
+    FROM employees
+    JOIN employees_projects ON employees_projects.employee_id = employees.id
+    JOIN projects ON employees_projects.project_id = projects.id
+    WHERE department_id = departments.id
+    ORDER BY budget DESC
+    LIMIT 3
+) AS department_projects
+ORDER BY departments.name;
