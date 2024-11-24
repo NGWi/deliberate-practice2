@@ -114,6 +114,24 @@ CROSS JOIN LATERAL (
 ) AS department_projects
 ORDER BY departments.name, budget DESC;
 
+-- A #1b) Fixed to handle multiple rows and DISTINCT ordering correctly
+SELECT 
+    departments.name AS department, 
+    projects.title AS project, 
+    projects.budget AS budget
+FROM departments
+    JOIN employees ON employees.department_id = departments.id
+    JOIN employees_projects ON employees_projects.employee_id = employees.id
+    JOIN projects ON employees_projects.project_id = projects.id 
+WHERE projects.title IN
+   (SELECT DISTINCT projects.title
+    FROM employees
+    JOIN employees_projects ON employees_projects.employee_id = employees.id
+    JOIN projects ON employees_projects.project_id = projects.id 
+    WHERE department_id = departments.id 
+    ORDER BY projects.title)  -- Can only order by columns in the SELECT DISTINCT list
+ORDER BY departments.name, budget DESC;
+
 -- A #2)
 -- Solution using DENSE_RANK() window function that keeps all tied-for-third. Will include second place even if there are 3+ at first place.
 WITH ranked AS (
