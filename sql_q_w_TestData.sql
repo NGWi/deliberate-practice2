@@ -97,7 +97,7 @@ SAVEPOINT inserted_test_data;
 -- Problem: Write a query that retrieves the top 3 projects by budget for each department.
 
 -- A #1)
--- Basic solution that arbitrarily picks third place in case of a tie.
+-- Basic solution that picks the first entry alphabetically for third place in case of a tie.
 SELECT 
     departments.name AS department, 
     department_projects.title AS project, 
@@ -114,26 +114,8 @@ CROSS JOIN LATERAL (
 ) AS department_projects
 ORDER BY departments.name, budget DESC;
 
--- A #1b) Fixed to handle multiple rows and DISTINCT ordering correctly
-SELECT 
-    departments.name AS department, 
-    projects.title AS project, 
-    projects.budget AS budget
-FROM departments
-    JOIN employees ON employees.department_id = departments.id
-    JOIN employees_projects ON employees_projects.employee_id = employees.id
-    JOIN projects ON employees_projects.project_id = projects.id 
-WHERE projects.title IN
-   (SELECT DISTINCT projects.title
-    FROM employees
-    JOIN employees_projects ON employees_projects.employee_id = employees.id
-    JOIN projects ON employees_projects.project_id = projects.id 
-    WHERE department_id = departments.id 
-    ORDER BY projects.title)  -- Can only order by columns in the SELECT DISTINCT list
-ORDER BY departments.name, budget DESC;
-
 -- A #2)
--- Solution using DENSE_RANK() window function that keeps all tied-for-third. Will include second place even if there are 3+ at first place.
+-- Solution using DENSE_RANK() window function that keeps all tied-for-third. May include second place even if there are 3+ at first place.
 WITH ranked AS (
   SELECT DISTINCT
     departments.name AS department, 
@@ -152,7 +134,7 @@ top_two AS (
   WHERE budget_rank <= 2
   GROUP BY department
 )
-SELECT ranked.department AS department, 
+SELECT DISTINCT ranked.department AS "A #2: department", 
        ranked.project AS project, 
        ranked.budget
 FROM ranked
@@ -175,7 +157,7 @@ WITH RankedProjects AS (
   JOIN employees_projects ON employees.id = employees_projects.employee_id
   JOIN projects ON employees_projects.project_id = projects.id
 )
-SELECT ranked.department_name AS department, 
+SELECT ranked.department_name AS "A #3: department", 
        ranked.project_title AS project, 
        ranked.budget
 FROM RankedProjects ranked
@@ -186,16 +168,16 @@ WHERE
   OR (ranked.budget_rank = 2 AND 
       (
       SELECT COUNT(*) 
-      FROM RankedProjects r2 
-      WHERE r2.department_name = ranked.department_name 
-        AND r2.budget_rank = 1
+      FROM RankedProjects inner_r 
+      WHERE inner_r.department_name = ranked.department_name 
+        AND inner_r.budget_rank = 1
       ) < 3)
   OR (ranked.budget_rank = 3 AND 
       (
       SELECT COUNT(*) 
-      FROM RankedProjects r3 
-      WHERE r3.department_name = ranked.department_name 
-        AND r3.budget_rank <= 2
+      FROM RankedProjects inner_r 
+      WHERE inner_r.department_name = ranked.department_name 
+        AND inner_r.budget_rank <= 2
       ) < 3)
 ORDER BY ranked.department_name, ranked.budget DESC, ranked.project_title;
 
