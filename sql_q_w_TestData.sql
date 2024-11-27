@@ -72,9 +72,9 @@ INSERT INTO projects VALUES
 (5, 'Project E', '2023-05-01', '2023-08-31', 110000),
 (6, 'Project F', '2023-06-01', '2023-12-31', 95000),
 (7, 'Project G', '2023-07-01', '2023-12-31', 85000),
-(8, 'Project H', '2023-08-01', '2023-12-31', 120000),  -- Tied with for first in Marketing with Project C
-(9, 'Project I', '2023-09-01', '2023-12-31', 90000),   -- Tied with with Project D in Marketing
-(10,'Project J', '2023-10-01', '2023-12-31', 90000),   -- Tied with with Project D and I in Marketing and Engineering.
+(8, 'Project H', '2023-08-01', '2023-12-31', 120000),  -- Tied for first in Marketing with Project C
+(9, 'Project I', '2023-09-01', '2023-12-31', 90000),   -- Tied with Project D in Marketing
+(10,'Project J', '2023-10-01', '2023-12-31', 90000),   -- Tied with Project D and I in Marketing and Engineering.
 -- Funny Walks projects (3 tied for first)
 (11, 'Project K', '2023-01-01', '2023-12-31', 120000),
 (12, 'Project L', '2023-02-01', '2023-11-30', 120000),
