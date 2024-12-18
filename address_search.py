@@ -58,18 +58,16 @@ if __name__ == "__main__":
     for address in address_book:
         print(f"{address.number} {address.street}, {address.city}, {address.state}")
 
-    number_index, street_index, city_index, state_index = build_index(address_book)
-    print(number_index)
-    print(street_index)
-    print(city_index)
-    print(state_index)
+    indices = (number_index, street_index, city_index, state_index) = build_index(address_book)
+    for index in indices:
+        print(index)
 
     test_cases = [Address(
-        random.choice(list(index.keys())) if random.choice([True, False]) else None
-        for index in (number_index, street_index, city_index, state_index)
+        *[random.choice(list(index.keys())) if random.choice([True, False]) else None
+        for index in indices]
     ) for _ in range(20)]
 
     for query in test_cases:
-        print(f"Search for {query.number}, {query.street}, {query.city}, {query.state}")
+        print(f"Search for {query.number + ' ' if query.number else ''}{query.street}, {query.city}, {query.state}")
         result = search(query)
         print(f"Result: {result}")
