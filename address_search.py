@@ -8,29 +8,16 @@ class Address:
 def build_index(address_book: list[Address]):
     number_index, street_index, city_index, state_index = {}, {}, {}, {}
     for idx, address in enumerate(address_book):
-        # Populate number index
-        if address.number is not None:
-            if address.number not in number_index:
-                number_index[address.number] = set()
-            number_index[address.number].add(idx)
-
-        # Populate street index
-        if address.street is not None:
-            if address.street not in street_index:
-                street_index[address.street] = set()
-            street_index[address.street].add(idx)
-
-        # Populate city index
-        if address.city is not None:
-            if address.city not in city_index:
-                city_index[address.city] = set()
-            city_index[address.city].add(idx)
-
-        # Populate state index
-        if address.state is not None:
-            if address.state not in state_index:
-                state_index[address.state] = set()
-            state_index[address.state].add(idx)
+        for prop_val, index_dict in (
+            (address.number, number_index),
+            (address.street, street_index),
+            (address.city, city_index),
+            (address.state, state_index),
+        ):
+            if prop_val is not None:
+                if prop_val not in index_dict:
+                    index_dict[prop_val] = set()
+                index_dict[prop_val].add(idx)
 
     return number_index, street_index, city_index, state_index
 
@@ -58,6 +45,7 @@ def search(search_query: Address) -> bool:
     else:
         return True
 
+#---------------------------------------------------------------------------#
 # Test code:
 
 from faker import Faker
@@ -66,7 +54,7 @@ import random
 if __name__ == "__main__":
     fake = Faker()
 
-    address_book = [Address(fake.building_number(), fake.street_name(), fake.city(), fake.state_abbr()) for _ in range(100)]
+    address_book = [Address(fake.building_number(), fake.street_name(), fake.city(), fake.state_abbr()) for _ in range(5)]
     for address in address_book:
         print(f"{address.number} {address.street}, {address.city}, {address.state}")
 
@@ -81,7 +69,7 @@ if __name__ == "__main__":
         random.choice(list(street_index.keys())) if random.choice([True, False]) else None,
         random.choice(list(city_index.keys())) if random.choice([True, False]) else None,
         random.choice(list(state_index.keys())) if random.choice([True, False]) else None
-    ) for _ in range(100)]
+    ) for _ in range(20)]
 
     for query in test_cases:
         print(f"Search for {query.number}, {query.street}, {query.city}, {query.state}")
