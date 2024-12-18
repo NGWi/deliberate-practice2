@@ -65,10 +65,8 @@ if __name__ == "__main__":
     print(state_index)
 
     test_cases = [Address(
-        random.choice(list(number_index.keys())) if random.choice([True, False]) else None,
-        random.choice(list(street_index.keys())) if random.choice([True, False]) else None,
-        random.choice(list(city_index.keys())) if random.choice([True, False]) else None,
-        random.choice(list(state_index.keys())) if random.choice([True, False]) else None
+        random.choice(list(index.keys())) if random.choice([True, False]) else None
+        for index in (number_index, street_index, city_index, state_index)
     ) for _ in range(20)]
 
     for query in test_cases:
