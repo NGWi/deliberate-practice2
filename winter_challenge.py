@@ -18,7 +18,7 @@ def bfs(start_x, start_y, grid, width, height):
             
             # Check bounds and if not visited
             if 0 <= new_x < width and 0 <= new_y < height and (new_x, new_y) not in visited:
-                if grid[new_y][new_x] not in ['WALL', 'ROOT', 'BASIC', 'HARVESTER']:  # Ensure not moving into walls
+                if grid[new_y][new_x] in ["", "A", "B", "C", "D"]:  # Open for moving
                     visited.add((new_x, new_y))
                     queue.append((new_x, new_y, path + [(x, y)]))
     
@@ -118,12 +118,48 @@ def root_farm():
 def hunting_path(hunter):
     print(f"Checking if we should grow towards a {hunter} protein", file=sys.stderr, flush=True)
     # Find the first step in the path to grow a BASIC organ
+    source = closest_path[0]  # Current location
+    src_x, src_y = source
     next_step = closest_path[1]  # The next step in the path
     new_x, new_y = next_step
+    dx, dy = new_x - src_x, new_y - src_y
+    """
+    We should prefer facing a side that has an enemy organ, if there is none then the direction then the direction we are growing 
+    as I wrote here but only if there's no wall. If there's a wall, then towards a side that has an empty space or protein, 
+    if there is none then one of our own organs, and if there is none then default back the direction we were growing in.
+    (and this should be a seperate function for readability and to reuse it in free_grow())
+    Codeium suggestion:
+
+    for enemy_dir in string:
+        enemy_x, enemy_y = new_x + directions[string.index(enemy_dir)][0], new_y + directions[string.index(enemy_dir)][1]
+        if 0 <= enemy_x < width and 0 <= enemy_y < height and (enemy_x, enemy_y) in entities and entities[(enemy_x, enemy_y)][1] == 0:
+            direction = enemy_dir
+            break
+    else:
+        for empty_dir in string:
+            empty_x, empty_y = new_x + directions[string.index(empty_dir)][0], new_y + directions[string.index(empty_dir)][1]
+            if 0 <= empty_x < width and 0 <= empty_y < height and (empty_x, empty_y) not in entities:
+                direction = empty_dir
+                break
+        else:
+            for protein_dir in string:
+                protein_x, protein_y = new_x + directions[string.index(protein_dir)][0], new_y + directions[string.index(protein_dir)][1]
+                if 0 <= protein_x < width and 0 <= protein_y < height and grid[protein_y][protein_x] in ['A', 'B', 'C', 'D']:
+                    direction = protein_dir
+                    break
+            else:
+                for my_dir in string:
+                    my_x, my_y = new_x + directions[string.index(my_dir)][0], new_y + directions[string.index(my_dir)][1]
+                    if 0 <= my_x < width and 0 <= my_y < height and (my_x, my_y) in entities and entities[(my_x, my_y)][1] == 1:
+                        direction = my_dir
+                        break
+                else:
+    """
+    direction = string[directions.index((dx, dy))]
     print(f"HUNT {closest_organ_id} {new_x} {new_y} {hunter}", file=sys.stderr, flush=True)
     my_entities[organism_id][(new_x, new_y)] = (hunter, 1, None, organ_parent_id, organ_root_id)
     grid[new_y][new_x] = hunter
-    return f"GROW {closest_organ_id} {new_x} {new_y} {hunter}"
+    return f"GROW {closest_organ_id} {new_x} {new_y} {hunter} {direction if hunter == 'TENTACLE' else ''}"
 
 def tentacle():
     print("Checking if we should grow a tentacle", file=sys.stderr, flush=True)
@@ -179,15 +215,15 @@ def free_grow(filler):
         if owner == 1:
             # Check adjacent tiles for growing a BASIC organ
 
-            for dx, dy in directions:
+            for (dx, dy), direction in zip(directions, string):
                 new_x, new_y = x + dx, y + dy
                 if 0 <= new_x < width and 0 <= new_y < height:
                     # Check if the tile is empty
                     if grid[new_y][new_x] == '':
-                        print(f"GROW {organ_id} {new_x} {new_y} {filler}", file=sys.stderr, flush=True)
+                        print(f"GROW {organ_id} {new_x} {new_y} {filler} {direction if filler == ' TENTACLE' else ''}", file=sys.stderr, flush=True)
                         my_entities[organism_id][(new_x, new_y)] = (filler, 1, None, organ_parent_id, organ_root_id)
                         grid[new_y][new_x] = filler
-                        return f"GROW {organ_id} {new_x} {new_y} {filler}"
+                        return f"GROW {organ_id} {new_x} {new_y} {filler} {direction if filler == ' TENTACLE' else ''}"
 
 width, height = [int(i) for i in input().split()]
 
@@ -292,8 +328,10 @@ while True:
         if command == "" and closest_path:
             if my_c > 0 and my_d > 0 and len(closest_path) == 3:  # If the path is two steps long:
                 command = farm() or ""
-            elif my_a > 0: # If we cannot grow a HARVESTER, grow a BASIC organ
-                # Find the closest protein and grow a BASIC organ
+            # If we cannot grow a HARVESTER, grow another organ towards the closest protein
+            elif my_b > 0 and my_c > 0:
+                command = hunting_path("TENTACLE") or ""
+            elif my_a > 0: 
                 command = hunting_path("BASIC") or ""
             elif my_c > 0 and my_d > 0:
                 command = hunting_path("HARVESTER") or ""
