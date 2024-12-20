@@ -75,7 +75,7 @@ def find_spaces():
     for key, value in organism_entities.items():
         (start_x, start_y) = key
         (type_, owner, organ_id, organ_parent_id, organ_root_id) = value
-        if owner == 1:
+        if owner == 1 and organ_id:
             for dx, dy in directions:
                 new_x, new_y = start_x + dx, start_y + dy
                 if 0 <= new_x < width and 0 <= new_y < height and (new_x, new_y) not in entities:
