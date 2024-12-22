@@ -426,8 +426,8 @@ while True:
             its_free_spaces = adj_free_spaces[organism_index]
             if command == "": # If there's no proteins available to harvest:
                 commands[organism_index] = (my_b > 0 and my_c > 0 and (wrapper(organism_index, tentacle))) or \
-                    (my_a > 0 and wrapper(organism_index, free_grow, organ_type="BASIC")) or \
                     (my_b > 0 and my_c > 0 and wrapper(organism_index, free_grow, organ_type="TENTACLE")) or \
+                    (my_a > 0 and wrapper(organism_index, free_grow, organ_type="BASIC")) or \
                     (my_b > 0 and my_d > 0 and wrapper(organism_index, free_grow, organ_type="SPORER")) or \
                     (my_c > 0 and my_d > 0 and wrapper(organism_index, free_grow, organ_type="HARVESTER")) or \
                             ""
