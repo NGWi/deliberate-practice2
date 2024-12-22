@@ -371,11 +371,11 @@ while True:
     # Check for TENTACLE growth
     for organism_index, command in enumerate(commands):
         if command == "": # If there's no proteins available to harvest:
-            if my_b > 0 and my_c > 0:  # Check if we have enough proteins to grow a TENTACLE
-                commands[organism_index] = wrapper(organism_index, tentacle) or \
-                    (my_a > 0 and wrapper(organism_index, free_grow, sub_arg="BASIC")) or \
-                    (my_c > 0 and my_d > 0 and wrapper(organism_index, free_grow, sub_arg="HARVESTER")) or \
-                    (my_b > 0 and my_d > 0 and wrapper(organism_index, free_grow, sub_arg="SPORER")) or \
+            commands[organism_index] = (my_b > 0 and my_c > 0 and (wrapper(organism_index, tentacle) or \
+                wrapper(organism_index, free_grow, sub_arg="TENTACLE"))) or \
+                (my_a > 0 and wrapper(organism_index, free_grow, sub_arg="BASIC")) or \
+                (my_c > 0 and my_d > 0 and wrapper(organism_index, free_grow, sub_arg="HARVESTER")) or \
+                (my_b > 0 and my_d > 0 and wrapper(organism_index, free_grow, sub_arg="SPORER")) or \
                         ""
     print("Commands:", commands, file=sys.stderr, flush=True)
 
