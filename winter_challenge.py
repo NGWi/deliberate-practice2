@@ -1,4 +1,3 @@
-from re import S, sub
 import sys
 from collections import deque
 
@@ -85,6 +84,7 @@ def farm():
     print(f"GROW {closest_organ_id} {adj_x} {adj_y} HARVESTER {direction_to_protein}", file=sys.stderr, flush=True)
     my_entities[organism_id][(adj_x, adj_y)] = ('HARVESTER', 1, None, closest_organ_id, organism_id)
     grid[adj_y][adj_x] = 'HARVESTER'
+    my_farm_locs[(target_x, target_y)] = grid[target_y][target_x]
     subtract_costs('HARVESTER')
     return f"GROW {closest_organ_id} {adj_x} {adj_y} HARVESTER {direction_to_protein}"
 
@@ -97,18 +97,21 @@ def spore_root_farm(its_free_spaces):
         sporer_x, sporer_y = sporer_loc
         for (dx, dy), direction in zip(directions, string):
             root_x, root_y = sporer_x + dx, sporer_y + dy
-            print(f"Checking from space {sporer_x} {sporer_y} towards {direction}", file=sys.stderr, flush=True)
-            while 0 <= root_x < width and 0 <= root_y < height:
+            # print(f"Checking from space {sporer_x} {sporer_y} towards {direction}", file=sys.stderr, flush=True)
+            while 0 <= root_x < width and 0 <= root_y < height and \
+                ((root_x, root_y) not in entities or grid[root_y][root_x] in ['A', 'B', 'C', 'D']):
                 # print(f"Checking space {root_x} {root_y}", file=sys.stderr, flush=True)
                 if (root_x, root_y) not in roots_visited and (root_x, root_y) not in entities:
                     roots_visited.add((root_x, root_y))
                     harvests_visited = set()
                     for hx, hy in directions:
                         harvest_x, harvest_y = root_x + hx, root_y + hy
-                        if (harvest_x, harvest_y) != sporer_loc and \
+                        if 0 <= harvest_x < width and 0 <= harvest_y < height and \
                             (harvest_x, harvest_y) not in harvests_visited and \
                             (harvest_x, harvest_y) not in entities and \
-                            0 <= harvest_x < width and 0 <= harvest_y < height:
+                            (harvest_x, harvest_y) != (sporer_x, sporer_y) and \
+                            (harvest_x, harvest_y) not in red_cells:
+
                                 harvests_visited.add((harvest_x, harvest_y))
                                 for px, py in directions:
                                     protein_x, protein_y = harvest_x + px, harvest_y + py
@@ -126,22 +129,29 @@ def root_farm():
     print("Checking if we should grow a root", file=sys.stderr, flush=True)
     sporers = my_sporers[organism_id]
     for sporer_x, sporer_y, organ_id, organ_dir in sporers:
-        harvests_visited = set()
+        roots_visited = set()
         dx, dy = directions[string.index(organ_dir)]
         root_x, root_y = sporer_x + dx, sporer_y + dy
         print(f"Checking from sporer {sporer_x} {sporer_y} towards {organ_dir}", file=sys.stderr, flush=True)
-        while 0 <= root_x < width and 0 <= root_y < height and (root_x, root_y) not in entities:
-            # print(f"Checking space {root_x} {root_y}", file=sys.stderr, flush=True)
-            for (hx, hy), direction in zip(directions, string):
-                harvest_x, harvest_y = root_x + hx, root_y + hy
-                if 0 <= harvest_x < width and 0 <= harvest_y < height and \
-                    (harvest_x, harvest_y) not in harvests_visited and \
-                    (harvest_x, harvest_y) not in entities:
-                        harvests_visited.add((harvest_x, harvest_y))
-                        for px, py in directions:
-                            protein_x, protein_y = harvest_x + px, harvest_y + py
-                            if 0 <= protein_x < width and 0 <= protein_y < height and \
-                                grid[protein_y][protein_x] in ['A', 'B', 'C', 'D'] and \
+        while 0 <= root_x < width and 0 <= root_y < height and \
+            ((root_x, root_y) not in entities or grid[root_y][root_x] in ['A', 'B', 'C', 'D']):
+            print(f"Checking space {root_x} {root_y}", file=sys.stderr, flush=True)
+            if (root_x, root_y) not in roots_visited and (root_x, root_y) not in entities:
+                roots_visited.add((root_x, root_y))
+                harvests_visited = set()
+                for hx, hy in directions:
+                    harvest_x, harvest_y = root_x + hx, root_y + hy
+                    if 0 <= harvest_x < width and 0 <= harvest_y < height and \
+                        (harvest_x, harvest_y) not in harvests_visited and \
+                        (harvest_x, harvest_y) not in entities and \
+                        (harvest_x, harvest_y) != (sporer_x, sporer_y) and \
+                        (harvest_x, harvest_y) not in red_cells: # Sporer check only to make this a duplicate of spore_root_farm so can turn it into function.
+
+                            harvests_visited.add((harvest_x, harvest_y))
+                            for px, py in directions:
+                                protein_x, protein_y = harvest_x + px, harvest_y + py
+                                if 0 <= protein_x < width and 0 <= protein_y < height and \
+                                    grid[protein_y][protein_x] in ['A', 'B', 'C', 'D'] and \
                                     (protein_x, protein_y) not in my_farm_locs:
                                         print(f"SPORE {organ_id} {root_x} {root_y} ROOT", file=sys.stderr, flush=True)
                                         my_entities[organism_id][(root_x, root_y)] = ('ROOT', 1, None, organ_parent_id, organ_root_id)
@@ -374,7 +384,7 @@ while True:
             print("Command:", command, file=sys.stderr, flush=True)
 
         # Check if we should grow a SPORER-to-HARVESTER_chain
-            if command == "" and loose_proteins > 0 and my_a > 0 and my_b > 1 and my_c > 1 and my_d > 2:
+            if commands[organism_index] == "" and loose_proteins > 0 and my_a > 0 and my_b > 1 and my_c > 1 and my_d > 2:
                 sporer_spaces = wrapper(organism_index, find_spaces)
                 print("Available adjacent spaces:", sporer_spaces, file=sys.stderr, flush=True)
                 if sporer_spaces:
@@ -382,14 +392,18 @@ while True:
             print("Command:", command, file=sys.stderr, flush=True)
 
         # Check if we can grow a HARVESTER
-            if command == "" and closest_paths[organism_index]:
+            if commands[organism_index] == "" and closest_paths[organism_index]:
                 if my_c > 0 and my_d > 0 and len(closest_paths[organism_index]) == 3:  # If the path is two steps long:
                     commands[organism_index] = wrapper(organism_index, farm) or ""
                 # If we cannot grow a HARVESTER, grow another organ towards the closest protein
+                elif my_b > 0 and my_c > 1: # So have extra protein for a harvester when we get there.
+                    commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="TENTACLE") or ""
                 elif my_a > 0: 
                     commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="BASIC") or ""
                 elif my_b > 0 and my_c > 0:
                     commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="TENTACLE") or ""
+                elif my_b > 0 and my_d > 0:
+                    commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="SPORER") or ""
                 elif my_c > 0 and my_d > 0:
                     commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="HARVESTER") or ""
             print("Command:", command, file=sys.stderr, flush=True)
