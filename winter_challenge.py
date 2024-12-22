@@ -33,7 +33,10 @@ def find_spaces():
         if owner == 1 and organ_id:
             for dx, dy in directions:
                 new_x, new_y = start_x + dx, start_y + dy
-                if 0 <= new_x < width and 0 <= new_y < height and (new_x, new_y) not in entities and (new_x, new_y) not in red_cells:
+                if 0 <= new_x < width and 0 <= new_y < height and \
+                    ((new_x, new_y) not in entities or grid[new_y][new_x] in ['A', 'B', 'C', 'D']) and \
+                    (new_x, new_y) not in red_cells and \
+                    ((new_x, new_y) not in my_farm_locs or retrying):
                     adj_free_spaces.append((organ_id, string[directions.index((dx, dy))], (new_x, new_y)))
 
     return adj_free_spaces
@@ -240,6 +243,9 @@ string = ["S", "E", "N", "W"]
 #-----------------------------------------------------------------------------------------------------------------#
 # Game loop
 while True:
+    first_loop = True
+    global retrying
+    retrying = False
 
     entity_count = int(input())
     entities = dict()  # Dictionary to store entity information
@@ -254,9 +260,6 @@ while True:
     enemy_farm_locs = dict()
     red_cells = set()
     loose_proteins = 0
-    first_loop = True
-    global retrying
-    retrying = False
 
     for i in range(entity_count):
         inputs = input().split()
@@ -332,6 +335,8 @@ while True:
     """
 #------------------------------------------------------------------------------------------------#
     while first_loop or retrying:
+        if retrying:
+            print("Retrying", file=sys.stderr, flush=True)
         # Logic to determine where to grow
         commands = [""] * required_actions_count
         adj_free_spaces = [] # Will be filled with each of my organism's list of adjacent free spaces
@@ -396,18 +401,23 @@ while True:
                 commands[organism_index] = (my_b > 0 and my_c > 0 and (wrapper(organism_index, tentacle) or \
                     wrapper(organism_index, free_grow, organ_type="TENTACLE"))) or \
                     (my_a > 0 and wrapper(organism_index, free_grow, organ_type="BASIC")) or \
-                    (my_c > 0 and my_d > 0 and wrapper(organism_index, free_grow, organ_type="HARVESTER")) or \
                     (my_b > 0 and my_d > 0 and wrapper(organism_index, free_grow, organ_type="SPORER")) or \
+                    (my_c > 0 and my_d > 0 and wrapper(organism_index, free_grow, organ_type="HARVESTER")) or \
                             ""
         print("Commands:", commands, file=sys.stderr, flush=True)
 
-        first_loop = False
-        if all(command == "" for command in commands):
+        if all(command == "" for command in commands) and first_loop:
+            print("We need to retry", file=sys.stderr, flush=True)
             retrying = True
+
+        elif retrying:
+            retrying = False
+        first_loop = False
     
+
     for organism_index, command in enumerate(commands):
         if command == "":
-            commands[organism_index] = "WAIT"
+            command = "WAIT"
         print(command)
 
     print("My proteins:", my_a, my_b, my_c, my_d, file=sys.stderr, flush=True)
