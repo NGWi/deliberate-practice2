@@ -13,11 +13,11 @@ def subtract_costs(organ_type):
     my_d -= costs[3]
 
 def wrapper(organism_index, function, organ_type=None):
+    global organism_id
     organism_id = my_root_ids[organism_index]
     print("Organism:", organism_index, f"'{organism_id}'", file=sys.stderr, flush=True)
     global organism_entities
     organism_entities = my_entities[organism_id]
-    global its_free_spaces
     its_free_spaces = adj_free_spaces[organism_index]
     if organ_type is None:
         return function()
@@ -25,7 +25,7 @@ def wrapper(organism_index, function, organ_type=None):
         return function(organ_type)
 
 def find_spaces():
-    adj_free_spaces = []
+    free_spaces = []
     for key, value in organism_entities.items():
         (start_x, start_y) = key
         (type_, owner, organ_id, organ_parent_id, organ_root_id) = value
@@ -36,9 +36,10 @@ def find_spaces():
                     ((new_x, new_y) not in entities or grid[new_y][new_x] in ['A', 'B', 'C', 'D']) and \
                     (new_x, new_y) not in red_cells and \
                     ((new_x, new_y) not in my_farm_locs or retrying):
-                    adj_free_spaces.append((organ_id, string[directions.index((dx, dy))], (new_x, new_y)))
+                    free_spaces.append((organ_id, string[directions.index((dx, dy))], (new_x, new_y)))
 
-    return adj_free_spaces
+    adj_free_spaces[organism_index] = free_spaces
+    return free_spaces
 
 def bfs(start_x, start_y, grid, width, height):
     queue = deque([(start_x, start_y, [])])  # (x, y, path)
@@ -361,18 +362,17 @@ while True:
             print("Retrying", file=sys.stderr, flush=True)
         # Logic to determine where to grow
         commands = [""] * required_actions_count
-        adj_free_spaces = [] # Will be filled with each of my organism's list of adjacent free spaces
+        global adj_free_spaces
+        adj_free_spaces = [[] for _ in range(required_actions_count)] # Will be filled with each of my organism's list of adjacent free spaces
         closest_proteins = [None for _ in range(required_actions_count)]
         closest_paths = [None for _ in range(required_actions_count)]
         closest_organ_ids = [None for _ in range(required_actions_count)]
 
         global organism_index
         for organism_index, command in enumerate(commands):
-            organism_id = my_root_ids[organism_index]
-            organism_entities = my_entities[organism_id]
-            its_free_spaces = find_spaces()
-            adj_free_spaces.append(its_free_spaces)
-            print("Available adjacent spaces:", its_free_spaces, file=sys.stderr, flush=True)
+            global its_free_spaces
+            its_free_spaces = wrapper(organism_index, find_spaces)
+            print("Available adjacent spaces for organism:", organism_index, its_free_spaces, file=sys.stderr, flush=True)
             for starting_id, direction_str, (first_x, first_y) in its_free_spaces:
                 # Perform BFS to find the nearest protein source
                 path = bfs(first_x, first_y, grid, width, height)
@@ -382,6 +382,7 @@ while True:
                         closest_organ_ids[organism_index] = starting_id  # Store the organ ID that can grow
                         closest_paths[organism_index] = [direction_str] + path
                         closest_proteins[organism_index] = path[-1]  # Get the protein source position
+            # Print the closest path for debugging
             print(f"Path for organism {organism_index}:", closest_paths[organism_index], file=sys.stderr, flush=True)
             entities_along_path = []
             if closest_paths[organism_index]:
@@ -393,15 +394,13 @@ while True:
             organism_id = my_root_ids[organism_index]
             if organism_id in my_sporers and loose_proteins > 0 and my_a > 0 and my_b > 0 and my_c > 1 and my_d > 1:
                 commands[organism_index] = wrapper(organism_index, root_farm) or ""
-            print("Command:", command, file=sys.stderr, flush=True)
+            # print("Command:", command, file=sys.stderr, flush=True)
 
         # Check if we should grow a SPORER-to-HARVESTER_chain
             if commands[organism_index] == "" and loose_proteins > 0 and my_a > 0 and my_b > 1 and my_c > 1 and my_d > 2:
-                sporer_spaces = wrapper(organism_index, find_spaces)
-                print("Available adjacent spaces:", sporer_spaces, file=sys.stderr, flush=True)
                 if its_free_spaces:
                     commands[organism_index] = wrapper(organism_index, spore_root_farm) or ""
-            print("Command:", command, file=sys.stderr, flush=True)
+            # print("Command:", command, file=sys.stderr, flush=True)
 
         # Check if we can grow a HARVESTER
             if commands[organism_index] == "" and closest_paths[organism_index]:
@@ -418,11 +417,13 @@ while True:
                     commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="SPORER") or ""
                 elif my_c > 0 and my_d > 0:
                     commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="HARVESTER") or ""
-            print("Command:", command, file=sys.stderr, flush=True)
+            # print("Command:", command, file=sys.stderr, flush=True)
         print("Farming commands:", commands, file=sys.stderr, flush=True)
 
         # Check for TENTACLE growth
         for organism_index, command in enumerate(commands):
+            organism_id = my_root_ids[organism_index]
+            its_free_spaces = adj_free_spaces[organism_index]
             if command == "": # If there's no proteins available to harvest:
                 commands[organism_index] = (my_b > 0 and my_c > 0 and (wrapper(organism_index, tentacle))) or \
                     (my_a > 0 and wrapper(organism_index, free_grow, organ_type="BASIC")) or \
