@@ -18,6 +18,8 @@ def wrapper(organism_index, function, sub_arg=None):
     print("Organism:", organism_index, f"'{organism_id}'", file=sys.stderr, flush=True)
     global organism_entities
     organism_entities = my_entities[organism_id]
+    global its_free_spaces
+    its_free_spaces = adj_free_spaces[organism_index]
     if sub_arg is None:
         return function()
     else:
@@ -53,7 +55,7 @@ def farm():
     closest_organ_id = closest_organ_ids[organism_index]
     target_x, target_y = closest_protein  # Get the last position in the path
     # Determine direction to the protein source
-    adjacent_tile = closest_path[1]  # The second step in the path
+    adjacent_tile = closest_path[1]  # The first step in the path
     adj_x, adj_y = adjacent_tile
     if adj_y < target_y:  # Protein is below
         direction_to_protein = 'S'
@@ -65,29 +67,29 @@ def farm():
         direction_to_protein = 'W'
 
     print(f"GROW {closest_organ_id} {adj_x} {adj_y} HARVESTER {direction_to_protein}", file=sys.stderr, flush=True)
-    my_entities[organism_id][(adj_x, adj_y)] = ('HARVESTER', 1, None, organ_parent_id, organ_root_id)
+    my_entities[organism_id][(adj_x, adj_y)] = ('HARVESTER', 1, None, closest_organ_id, organism_id)
     grid[adj_y][adj_x] = 'HARVESTER'
     subtract_costs('HARVESTER')
     return f"GROW {closest_organ_id} {adj_x} {adj_y} HARVESTER {direction_to_protein}"
 
 def find_spaces():
-    sporer_spaces = []
+    adj_free_spaces = []
     for key, value in organism_entities.items():
         (start_x, start_y) = key
         (type_, owner, organ_id, organ_parent_id, organ_root_id) = value
         if owner == 1 and organ_id:
             for dx, dy in directions:
                 new_x, new_y = start_x + dx, start_y + dy
-                if 0 <= new_x < width and 0 <= new_y < height and (new_x, new_y) not in entities:
-                    sporer_spaces.append((organ_id, (new_x, new_y)))
+                if 0 <= new_x < width and 0 <= new_y < height and (new_x, new_y) not in entities and (new_x, new_y) not in red_cells:
+                    adj_free_spaces.append((organ_id, string[directions.index((dx, dy))], (new_x, new_y)))
 
-    return sporer_spaces
+    return adj_free_spaces
                     
-def spore_root_farm(sporer_spaces):
+def spore_root_farm(its_free_spaces):
     print("Checking if we should grow a sporer", file=sys.stderr, flush=True)
-    for space in sporer_spaces:
+    for space in its_free_spaces:
         roots_visited = set()
-        sporer_loc = space[1]
+        sporer_loc = space[2]
         sporer_x, sporer_y = sporer_loc
         for (dx, dy), direction in zip(directions, string):
             root_x, root_y = sporer_x + dx, sporer_y + dy
@@ -118,6 +120,7 @@ def spore_root_farm(sporer_spaces):
 
 def root_farm():
     print("Checking if we should grow a root", file=sys.stderr, flush=True)
+    sporers = my_sporers[organism_id]
     for sporer_x, sporer_y, organ_id, organ_dir in sporers:
         harvests_visited = set()
         dx, dy = directions[string.index(organ_dir)]
@@ -146,11 +149,9 @@ def root_farm():
 def hunting_path(hunter):
     print(f"Checking if we should grow a {hunter} towards a protein", file=sys.stderr, flush=True)
     # Find the first step in the path to grow a BASIC organ
-    source = closest_paths[organism_index][0]  # Current location
-    src_x, src_y = source
-    next_step = closest_paths[organism_index][1]  # The next step in the path
-    new_x, new_y = next_step
-    dx, dy = new_x - src_x, new_y - src_y
+    closest_path = closest_paths[organism_index]
+    direction_str = closest_path[0]
+    new_x, new_y = closest_path[1]  # The next step in the path
     """
     We should prefer facing a side that has an enemy organ, if there is none then the direction then the direction we are growing 
     as I wrote here but only if there's no wall. If there's a wall, then towards a side that has an empty space or protein, 
@@ -183,78 +184,53 @@ def hunting_path(hunter):
                         break
                 else:
     """
-    direction = string[directions.index((dx, dy))]
     print(f"HUNT {closest_organ_ids[organism_index]} {new_x} {new_y} {hunter}", file=sys.stderr, flush=True)
     my_entities[organism_id][(new_x, new_y)] = (hunter, 1, None, organ_parent_id, organ_root_id)
     grid[new_y][new_x] = hunter
     subtract_costs(hunter)
-    return f"GROW {closest_organ_ids[organism_index]} {new_x} {new_y} {hunter} {direction if hunter in ['TENTACLE', 'HARVESTER'] else ''}"
+    return f"GROW {closest_organ_ids[organism_index]} {new_x} {new_y} {hunter} {direction_str if hunter in ['TENTACLE', 'HARVESTER'] else ''}"
 
 def tentacle():
+    # Perform BFS to check if there's an enemy organ two steps away
     print("Checking if we should grow a tentacle", file=sys.stderr, flush=True)
     target = None
-    for key, value in organism_entities.items():
-        (start_x, start_y) = key
-        (type_, owner, organ_id, organ_parent_id, organ_root_id) = value
-        if owner == 1 and organ_id:  # Check only your organs
-            # Perform BFS to check if there's an enemy organ two steps away
-            queue = deque([(start_x, start_y, [], 0)])  # (x, y, path, depth)
-            visited = set()
-            visited.add((start_x, start_y))
+    trimmed_spaces = set()
+    for organ_id, direction_str, (adj_x, adj_y) in its_free_spaces:
+        if (adj_x, adj_y) not in trimmed_spaces: 
+            trimmed_spaces.add((adj_x, adj_y))
+            path = [(adj_x, adj_y)]
+            for dx, dy in directions:
+                new_x, new_y = adj_x + dx, adj_y + dy
 
-            while queue:
-                x, y, path, depth = queue.popleft()
-                if depth > 1:
-                    continue
-                
-                for dx, dy in directions:
-                    new_x, new_y = x + dx, y + dy
-                    
-                    # Check bounds and if not visited
-                    if 0 <= new_x < width and 0 <= new_y < height and (new_x, new_y) not in visited:
-                    # Check if current position is an enemy organ
-                        if (new_x, new_y) in  entities and entities[(new_x, new_y)][1] == 0 and len(path) == 1:  # Check if the entity is an enemy organ
-                            attack = path + [(new_x, new_y)]  # Return the path to the enemy organ
-                            print(f"Attack_route: {attack}", file=sys.stderr, flush=True)
-                            adj_organ_id = entities[(start_x, start_y)][2]
-                            direction = ''
-                            if attack[0][0] > attack[1][0]:
-                                direction = 'W'
-                            elif attack[0][0] < attack[1][0]:
-                                direction = 'E'
-                            elif attack[0][1] > attack[1][1]:
-                                direction = 'N'
-                            elif attack[0][1] < attack[1][1]:
-                                direction = 'S'
-                            print(f"GROW {adj_organ_id} {attack[0][0]} {attack[0][1]} TENTACLE {direction}", file=sys.stderr, flush=True)
-                            my_entities[organism_id][(attack[0][0], attack[0][1])] = ('TENTACLE', 1, None, organ_parent_id, organ_root_id)
-                            grid[attack[0][1]][attack[0][0]] = 'TENTACLE'
-                            subtract_costs('TENTACLE')
-                            return f"GROW {adj_organ_id} {attack[0][0]} {attack[0][1]} TENTACLE {direction}"
-                        elif grid[new_y][new_x] not in ['WALL', 'ROOT', 'BASIC', 'HARVESTER', 'TENTACLE']:  # Ensure not moving into walls
-                            visited.add((new_x, new_y))
-                            queue.append((new_x, new_y, path + [(new_x, new_y)], depth + 1))
+                # Check bounds and if current position is an enemy organ:
+                if 0 <= new_x < width and 0 <= new_y < height and (new_x, new_y) in entities and entities[(new_x, new_y)][1] == 0:
+                    attack = path + [(new_x, new_y)]  # Return the path to the enemy organ
+                    direction = ''
+                    if attack[0][0] > attack[1][0]:
+                        direction = 'W'
+                    elif attack[0][0] < attack[1][0]:
+                        direction = 'E'
+                    elif attack[0][1] > attack[1][1]:
+                        direction = 'N'
+                    elif attack[0][1] < attack[1][1]:
+                        direction = 'S'
+                    print(f"GROW {organ_id} {attack[0][0]} {attack[0][1]} TENTACLE {direction} to attack {attack[1][0]} {attack[1][1]}", file=sys.stderr, flush=True)
+                    my_entities[organism_id][(attack[0][0], attack[0][1])] = ('TENTACLE', 1, None, organ_parent_id, organ_root_id)
+                    grid[attack[0][1]][attack[0][0]] = 'TENTACLE'
+                    subtract_costs('TENTACLE')
+                    return f"GROW {organ_id} {attack[0][0]} {attack[0][1]} TENTACLE {direction}"
 
 
 def free_grow(filler):
-    print("Checking if we should just grow filler organs", file=sys.stderr, flush=True)
+    print(f"Checking if we should just grow a {filler} organ", file=sys.stderr, flush=True)
     # If there's no proteins available:
-    for key, value in organism_entities.items():
-        (x, y) = key
-        (type_, owner, organ_id, organ_parent_id, organ_root_id) = value
-        if owner == 1 and organ_id:
-            # Check adjacent tiles for growing a BASIC organ
-
-            for (dx, dy), direction in zip(directions, string):
-                new_x, new_y = x + dx, y + dy
-                if 0 <= new_x < width and 0 <= new_y < height:
-                    # Check if the tile is empty
-                    if grid[new_y][new_x] == '':
-                        print(f"GROW {organ_id} {new_x} {new_y} {filler} {direction if filler in ['TENTACLE', 'HARVESTER'] else ''}", file=sys.stderr, flush=True)
-                        my_entities[organism_id][(new_x, new_y)] = (filler, 1, None, organ_parent_id, organ_root_id)
-                        grid[new_y][new_x] = filler
-                        subtract_costs(filler)
-                        return f"GROW {organ_id} {new_x} {new_y} {filler} {direction if filler in ['TENTACLE', 'HARVESTER'] else ''}"
+    for organ_id, direction_str, (adj_x, adj_y) in its_free_spaces:
+        if grid[adj_y][adj_x] == '': # Check if the tile is still empty
+            print(f"GROW {organ_id} {adj_x} {adj_y} {filler} {direction_str if filler in ['TENTACLE', 'HARVESTER'] else ''}", file=sys.stderr, flush=True)
+            my_entities[organism_id][(adj_x, adj_y)] = (filler, 1, None, organ_parent_id, organ_root_id)
+            grid[adj_y][adj_x] = filler
+            subtract_costs(filler)
+            return f"GROW {organ_id} {adj_x} {adj_y} {filler} {direction_str if filler in ['TENTACLE', 'HARVESTER'] else ''}"
 
 width, height = [int(i) for i in input().split()]
 
@@ -269,10 +245,11 @@ while True:
     grid = [['' for _ in range(width)] for _ in range(height)]  # Initialize grid
     my_root_ids = []
     my_entities = dict()
-    sporers = []
+    my_sporers = dict()
     harvesters = []
     farm_count = 0
     farm_locs = set()
+    red_cells = set()
     loose_proteins = 0
 
     for i in range(entity_count):
@@ -294,9 +271,15 @@ while True:
                 my_entities[organ_root_id] = dict()
             my_entities[organ_root_id][(x, y)] = (type_, owner, organ_id, organ_parent_id, organ_root_id)
             if type_ == 'SPORER':
-                sporers.append((x, y, organ_id, organ_dir))
+                if organ_parent_id not in my_sporers:
+                    my_sporers[organ_parent_id] = []
+                my_sporers[organ_parent_id].append((x, y, organ_id, organ_dir))
             if type_ == 'HARVESTER':
                 harvesters.append((x, y, organ_dir))
+        if owner == 0 and type_ == 'TENTACLE':
+            direction_vector = directions[string.index(organ_dir)]
+            red_cell = (x + direction_vector[0], y + direction_vector[1])
+            red_cells.add(red_cell)
         if type_ in ['A', 'B', 'C', 'D']:
             loose_proteins += 1
 
@@ -329,31 +312,37 @@ while True:
 #------------------------------------------------------------------------------------------------#
     # Logic to determine where to grow
     commands = [""] * required_actions_count
+    adj_free_spaces = [] # Will be filled with each of my organism's list of adjacent free spaces
     closest_proteins = [None for _ in range(required_actions_count)]
     closest_paths = [None for _ in range(required_actions_count)]
     closest_organ_ids = [None for _ in range(required_actions_count)]
-    direction_to_proteins = [None for _ in range(required_actions_count)]
+
+    global organism_index
+    for organism_index in range(required_actions_count):
+        organism_id = my_root_ids[organism_index]
+        organism_entities = my_entities[organism_id]
+        adj_free_spaces.append(find_spaces())
 
     for organism_index in range(required_actions_count):
         organism_id = my_root_ids[organism_index]
         organism_entities = my_entities[organism_id]
-        for key, value in organism_entities.items():
-            (x, y) = key
-            (type_, owner, organ_id, organ_parent_id, organ_root_id) = value
+        its_free_spaces = adj_free_spaces[organism_index]
+        for starting_id, direction_str, (first_x, first_y) in its_free_spaces:
             # Perform BFS to find the nearest protein source
-            path = bfs(x, y, grid, width, height)
+            path = bfs(first_x, first_y, grid, width, height)
             if path:
                 # If a path is found, check if it's the closest one
                 if closest_paths[organism_index] is None or len(path) < len(closest_paths[organism_index]):
-                    closest_paths[organism_index] = path
+                    closest_organ_ids[organism_index] = starting_id  # Store the organ ID that can grow
+                    closest_paths[organism_index] = [direction_str] + path
                     closest_proteins[organism_index] = path[-1]  # Get the protein source position
-                    closest_organ_ids[organism_index] = organ_id  # Store the organ ID that can grow
         print(f"Path for organism {organism_index}:", closest_paths[organism_index], file=sys.stderr, flush=True)
 
     # Check if we should build a ROOT with a HARVESTER
     for organism_index, command in enumerate(commands):
-        if sporers and loose_proteins > 0 and my_a > 0 and my_b > 0 and my_c > 1 and my_d > 1:
-            commands[organism_index] = root_farm() or ""
+        organism_id = my_root_ids[organism_index]
+        if organism_id in my_sporers and loose_proteins > 0 and my_a > 0 and my_b > 0 and my_c > 1 and my_d > 1:
+            commands[organism_index] = wrapper(organism_index, root_farm) or ""
     print("Commands:", commands, file=sys.stderr, flush=True)
 
     # Check if we should grow a SPORER-to-HARVESTER_chain
@@ -383,11 +372,11 @@ while True:
     for organism_index, command in enumerate(commands):
         if command == "": # If there's no proteins available to harvest:
             if my_b > 0 and my_c > 0:  # Check if we have enough proteins to grow a TENTACLE
-                commands[organism_index] = wrapper(organism_index, tentacle) or ""
-            elif my_a > 0:    
-                commands[organism_index] = wrapper(organism_index, free_grow, sub_arg="BASIC") or ""
-            elif my_c > 0 and my_d > 0:
-                commands[organism_index] = wrapper(organism_index, free_grow, sub_arg="HARVESTER") or ""
+                commands[organism_index] = wrapper(organism_index, tentacle) or \
+                    (my_a > 0 and wrapper(organism_index, free_grow, sub_arg="BASIC")) or \
+                    (my_c > 0 and my_d > 0 and wrapper(organism_index, free_grow, sub_arg="HARVESTER")) or \
+                    (my_b > 0 and my_d > 0 and wrapper(organism_index, free_grow, sub_arg="SPORER")) or \
+                        ""
     print("Commands:", commands, file=sys.stderr, flush=True)
 
     for organism_index, command in enumerate(commands):
