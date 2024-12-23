@@ -151,7 +151,7 @@ def root_farm():
                         (harvest_x, harvest_y) not in harvests_visited and \
                         (harvest_x, harvest_y) not in entities and \
                         (harvest_x, harvest_y) != (sporer_x, sporer_y) and \
-                        (harvest_x, harvest_y) not in red_cells: # Sporer check only to make this a duplicate of spore_root_farm so can turn it into function.
+                        (harvest_x, harvest_y) not in red_cells: # Sporer check is only to make this a duplicate of spore_root_farm so can turn it into function.
 
                             harvests_visited.add((harvest_x, harvest_y))
                             for px, py in directions:
@@ -408,11 +408,13 @@ while True:
                     commands[organism_index] = wrapper(organism_index, farm) or ""
                 # If we cannot grow a HARVESTER, grow another organ towards the closest protein
                 elif my_b > 0 and my_c > 1: # So have extra protein for a harvester when we get there.
-                    commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="TENTACLE") or ""
+                    commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="TENTACLE") or \
+                    wrapper(organism_index, tentacle) or ""
                 elif my_a > 0: 
                     commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="BASIC") or ""
                 elif my_b > 0 and my_c > 0:
-                    commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="TENTACLE") or ""
+                    commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="TENTACLE") or \
+                    wrapper(organism_index, tentacle) or ""
                 elif my_b > 0 and my_d > 0:
                     commands[organism_index] = wrapper(organism_index, hunting_path, organ_type="SPORER") or ""
                 elif my_c > 0 and my_d > 0:
