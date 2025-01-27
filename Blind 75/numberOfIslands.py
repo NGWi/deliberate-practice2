@@ -2,7 +2,7 @@ from typing import List
 class Solution:
     def __init__(self):
         self.directions = [(-1, 0), (0, -1), (1, 0), (0, 1)]
-        self.island_n = 1
+        self.island_n = 0
         
     def prop(self, row_n, cell_n, cell):
         print(row_n, cell_n, "(", cell, ")")
@@ -20,6 +20,7 @@ class Solution:
         self.g = grid
         self.r = len(grid)
         self.c = len(grid[0])
+        self.island_n += 1
         self.new_island = False
         for row_n, row in enumerate(grid):
             for cell_n, cell in enumerate(row):
@@ -62,7 +63,7 @@ class Solution:
                     self.island_n += 1
                     self.new_island = False
 
-        return self.island_n - 1
+        return self.island_n
 
     def dfs(self, row_n, cell_n, cell):
         print(row_n, cell_n, "(", cell, ")")
