@@ -49,24 +49,51 @@ class Node:
 from calendar import c
 from typing import Optional
 class Solution:
-    def nodepath(self, node) -> list:
-        copied_node = Node(node.val)
+    def nodepath(self, node):
+        copied_node = self.match_ups[node]
+        self.match_ups[node] = copied_node
         for neigh in node.neighbors:
-            copied_node.neighbors.append(neigh)
+            copied_neigh = Node()
+            if neigh not in self.match_ups: 
+                copied_neigh = Node(neigh.val)
+                self.match_ups[neigh] = copied_neigh
+            else:
+                copied_neigh = self.match_ups[neigh]
+            copied_node.neighbors.append(copied_neigh)
             if neigh not in self.visited:
                 self.to_visit.append(neigh)
-        print(node, node.val, copied_node.neighbors)
-        return copied_node
+        print("Copied.  ", copied_node.val, [n.val for n in copied_node.neighbors])
+        if node.val == 1:
+            self.first_node = copied_node
+
+    def get_copied_nodes(self):
+        if not self.first_node:
+            return []
+        visited = set()
+        to_visit = [self.first_node]
+        result = []
+        while to_visit:
+            node = to_visit.pop()
+            if node not in visited:
+                visited.add(node)
+                result.append([n.val for n in node.neighbors])
+                to_visit.extend(node.neighbors)
+        return result
 
     def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
         if not node:
             print("Empty")
             return node
+        self.match_ups = {node: Node(node.val)}
         self.to_visit = [node] 
         self.visited = set()
+        self.first_node = Node()
         while self.to_visit:
             start = self.to_visit.pop()
             self.visited.add(start)
-            copied_node = self.nodepath(start)
+            print("Visiting:", start.val, [n.val for n in start.neighbors])
+            self.nodepath(start)
+            print("Copied nodes:", self.get_copied_nodes())
 
-        return copied_node
+        print("First node:", self.first_node.val, [n.val for n in self.first_node.neighbors])
+        return self.first_node
