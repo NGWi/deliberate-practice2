@@ -40,6 +40,13 @@ Constraints:
 1 <= Node.val <= 100
 There are no duplicate edges and no self-loops in the graph.
 """
+"""
+Test cases:
+[[2,3],[1,4],[1,4],[2,3]]
+[[2,3],[1,4,1,4],[2,3],[1,4]]
+[[2,4],[1,3],[2,4],[1,3]]
+[[2,4],[1,1,3,3],[2,4],[1,3]]
+"""
 class Node:
     def __init__(self, val = 0, neighbors = None):
         self.val = val
@@ -49,6 +56,20 @@ class Node:
 from calendar import c
 from typing import Optional
 class Solution:
+    def get_copied_nodes(self): # For debugging.
+        if not self.first_node:
+            return []
+        visited = set()
+        to_visit = [self.first_node]
+        result = []
+        while to_visit:
+            node = to_visit.pop()
+            if node not in visited:
+                visited.add(node)
+                result.append([n.val for n in node.neighbors])
+                to_visit.extend(node.neighbors)
+        return result
+        
     def nodepath(self, node):
         copied_node = self.match_ups[node]
         self.match_ups[node] = copied_node
@@ -66,19 +87,6 @@ class Solution:
         if node.val == 1:
             self.first_node = copied_node
 
-    def get_copied_nodes(self):
-        if not self.first_node:
-            return []
-        visited = set()
-        to_visit = [self.first_node]
-        result = []
-        while to_visit:
-            node = to_visit.pop()
-            if node not in visited:
-                visited.add(node)
-                result.append([n.val for n in node.neighbors])
-                to_visit.extend(node.neighbors)
-        return result
 
     def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
         if not node:
@@ -89,11 +97,34 @@ class Solution:
         self.visited = set()
         self.first_node = Node()
         while self.to_visit:
+            print("Visited:", {n.val for n in self.visited})
             start = self.to_visit.pop()
-            self.visited.add(start)
-            print("Visiting:", start.val, [n.val for n in start.neighbors])
-            self.nodepath(start)
-            print("Copied nodes:", self.get_copied_nodes())
+            if start not in self.visited:
+                self.visited.add(start)
+                # print("Visiting:", start.val, [n.val for n in start.neighbors])
+                self.nodepath(start)
+                # print("Copied nodes:", self.get_copied_nodes())
 
-        print("First node:", self.first_node.val, [n.val for n in self.first_node.neighbors])
+        # print("First node:", self.first_node.val, [n.val for n in self.first_node.neighbors])
         return self.first_node
+
+# The test code that follows is a work in progress. Currently returning [[]]. But the code above passes in NeetCode and LeetCode.
+
+def build_graph(adj_list):
+    nodes = [Node(val) for val in adj_list[0]]
+    for node, neighbors in zip(nodes, adj_list[1:]):
+        node.neighbors = [n for n in nodes if n.val in neighbors]
+    return nodes[0]
+
+if __name__ == "__main__":
+    test_cases = [
+        [[2,3],[1,4],[1,4],[2,3]],
+        [[2,3],[1,4,1,4],[2,3],[1,4]],
+        [[2,4],[1,3],[2,4],[1,3]],
+        [[2,4],[1,1,3,3],[2,4],[1,3]],
+    ]
+    solution = Solution()
+    for test_case in test_cases:
+        print("Test case:", test_case)
+        result = solution.cloneGraph(build_graph(test_case))
+        print("Result:", [[n.val for n in result.neighbors]])
