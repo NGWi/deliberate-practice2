@@ -71,7 +71,45 @@ class Solution:
                 to_check.append((nr,nc))
                 ocean[nr][nc] = True
 
+
+    def pacificAtlanticSet(self, heights: List[List[int]]) -> List[List[int]]:
+        global width, height, directions
+        width = len(heights[0])
+        height = len(heights)
+        directions = [[0,1],[1,0],[-1,0],[0,-1]]
+        pacific = [[False for _ in range(width)] for _ in range(height)]
+        atlantic = [[False for _ in range(width)] for _ in range(height)]
+        pacific_to_check = set()
+        atlantic_to_check = set()
+        for i in range(height):
+          pacific[i][0] = True
+          atlantic[i][width-1] = True
+          pacific_to_check.add((i,0))
+          atlantic_to_check.add((i,width-1))
+        if width > 1:
+          for i in range(width):
+            pacific[0][i] = True
+            atlantic[height-1][i] = True
+            pacific_to_check.add((0,i))
+            atlantic_to_check.add((height-1,i))
+
+        
+        self.bfs(pacific_to_check, pacific, heights)
+        self.bfs(atlantic_to_check, atlantic, heights)
+        results = [[r, c] for r in range(height) for c in range(width) if pacific[r][c] and atlantic[r][c]]
+        return results
                 
+    def bfsSet(self, to_check, ocean, heights):
+        while to_check:
+          next_to_check = set()
+          for (r, c) in to_check: 
+            for dr, dc in directions:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < height and 0 <= nc < width and (nr,nc) not in to_check and heights[nr][nc] >= heights[r][c] and not ocean[nr][nc]:
+                    next_to_check.add((nr,nc))
+                    ocean[nr][nc] = True
+          to_check = next_to_check    
+          
 heights = [
   [4,2,7,3,4],
   [7,4,6,4,7],
