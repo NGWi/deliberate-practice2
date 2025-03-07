@@ -94,8 +94,8 @@ class Solution:
             atlantic_to_check.add((height-1,i))
 
         
-        self.bfs(pacific_to_check, pacific, heights)
-        self.bfs(atlantic_to_check, atlantic, heights)
+        self.bfsSets(pacific_to_check, pacific, heights)
+        self.bfsSets(atlantic_to_check, atlantic, heights)
         results = [[r, c] for r in range(height) for c in range(width) if pacific[r][c] and atlantic[r][c]]
         return results
                 
@@ -126,7 +126,7 @@ class Solution:
           for i in range(width):
             pacific[0][i] = True
             to_check.add((0,i))
-        self.bfs(to_check, pacific, heights)
+        self.bfsSet(to_check, pacific, heights)
 
         to_check = set()
         for i in range(height):
@@ -136,7 +136,7 @@ class Solution:
           for i in range(width):
             atlantic[height-1][i] = True
             to_check.add((height-1,i))
-        self.bfs(to_check, atlantic, heights)
+        self.bfsSet(to_check, atlantic, heights)
 
         results = [[r, c] for r in range(height) for c in range(width) if pacific[r][c] and atlantic[r][c]]
         return results
