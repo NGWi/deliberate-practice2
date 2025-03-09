@@ -46,7 +46,7 @@ def tsp_held_karp(distances):
     current = last_city
     for _ in range(n - 1):
         path.append(current)
-        parent = C[(mask, current )][1]
+        parent = C[(mask, current)][1]
         mask ^= (1 << current)  # Remove current from the mask
         current = parent
     path.append(0)  # Return to the starting city
@@ -57,12 +57,17 @@ def tsp_held_karp(distances):
 
 if __name__ == "__main__":
     # Distance matrix (symmetric)
-    distances = [
-        [0, 10, 15, 20],
-        [10, 0, 35, 25],
-        [15, 35, 0, 30],
-        [20, 25, 30, 0]
-    ]
+    #     distances = [
+    #     [0, 10, 15, 20],
+    #     [10, 0, 35, 25],
+    #     [15, 35, 0, 30],
+    #     [20, 25, 30, 0]
+    # ]
+
+    # Run GoogleDistanceMatrix.py to get a distance matrix
+    import subprocess
+    output = subprocess.check_output(['python', 'GoogleDistanceMatrix.py'])
+    distances = eval(output.decode().splitlines()[-1])
 
     cost, path = tsp_held_karp(distances)
     print("Minimum cost:", cost)
