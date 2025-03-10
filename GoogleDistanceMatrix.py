@@ -1,9 +1,6 @@
-import enum
-from operator import ge
 import os
 import requests
 import json
-
 def get_coordinates(address, api_key):
     base_url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {
