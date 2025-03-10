@@ -1,4 +1,5 @@
 from itertools import combinations
+from sys import argv
 import subprocess
 
 # O(n^2*2^n):
@@ -67,20 +68,10 @@ def convert_seconds(seconds):
     return f"{days} days {hours} hours {minutes} minutes"
 
 def main():
-    try:
-        output = subprocess.check_output(
-            ["python", "GoogleDistanceMatrix.py"], 
-            stderr=subprocess.PIPE,
-            universal_newlines=True
-        )
-        distances = eval(output.strip())
-        cost, path = tsp_held_karp(distances)
-        print(f"Minimum cost: {convert_seconds(cost)}")
-        print(f"Optimal path: {path}")
-    except subprocess.CalledProcessError as e:
-        print(f"Error: {e.stderr}")
-    except SyntaxError:
-        print("Invalid matrix format")
+    distance_matrix = argv[1:]  # Get distances from command line arguments
+    time, path = tsp_held_karp(distance_matrix)
+    print(convert_seconds(time), path)
+
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,5 @@
-import os
+from os import environ
+from sys import argv
 import requests
 import json
 
@@ -13,22 +14,9 @@ def get_coordinates(address, api_key):
     return None
 
 def main():
-    api_key = os.environ['GM_KEY']
-    url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
-    headers = {
-        "Content-Type": "application/json",
-        "X-Goog-FieldMask": "originIndex,destinationIndex,duration",
-        "X-Goog-Api-Key": api_key
-    }
-
-    locations = [
-        "San Francisco, CA",
-        "Los Angeles, CA",
-        "New York, NY",
-        "Chicago, IL"
-    ]
-
+    locations = argv[1:]  # Get locations from command line arguments
     # Geocode all locations
+    api_key = environ['GM_KEY']
     geocoded = []
     for loc in locations:
         coords = get_coordinates(loc, api_key)
@@ -37,6 +25,21 @@ def main():
         else:
             print(f"Failed to geocode: {loc}")
             return
+            
+    url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-FieldMask": "originIndex,destinationIndex,duration",
+        "X-Goog-Api-Key": api_key
+    }
+
+    # locations = [
+    #     "San Francisco, CA",
+    #     "Los Angeles, CA",
+    #     "New York, NY",
+    #     "Chicago, IL"
+    # ]
+
 
     # Build payload
     payload = {
@@ -62,7 +65,7 @@ def main():
         j = entry["destinationIndex"]
         matrix[i][j] = int(entry["duration"][:-1])
 
-    print(json.dumps(matrix))  # Output as JSON for safe parsing
+    print(matrix)  # Output as string to be passed
 
 if __name__ == "__main__":
     main()
