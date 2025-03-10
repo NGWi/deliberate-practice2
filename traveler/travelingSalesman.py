@@ -67,24 +67,12 @@ def convert_seconds(seconds):
     return f"{days} days {hours} hours {minutes} minutes"
 
 def main():
-    # Distance matrix (symmetric)
-    # distances = [
-    #     [0, 10, 15, 20],
-    #     [10, 0, 35, 25],
-    #     [15, 35, 0, 30],
-    #     [20, 25, 30, 0]
-    # ]
-
-    # distances = [[0]]
-
-    # Run GoogleDistanceMatrix.py to get a distance matrix
     try:
         output = subprocess.check_output(
             ["python", "GoogleDistanceMatrix.py"], 
             stderr=subprocess.PIPE,
             universal_newlines=True
         )
-        # Use eval() instead of json.loads()
         distances = eval(output.strip())
         cost, path = tsp_held_karp(distances)
         print(f"Minimum cost: {convert_seconds(cost)}")
