@@ -65,7 +65,7 @@ def main():
         j = entry["destinationIndex"]
         matrix[i][j] = int(entry["duration"][:-1])
 
-    print(matrix)  # Output as string to be passed
+    print(json.dumps(matrix))  # Output as JSON to be passed
 
 if __name__ == "__main__":
     main()

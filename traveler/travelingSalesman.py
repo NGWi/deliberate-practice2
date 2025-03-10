@@ -1,6 +1,6 @@
 from itertools import combinations
-from sys import argv
-import subprocess
+import sys
+import json
 
 # O(n^2*2^n):
 def tsp_held_karp(distances):
@@ -68,9 +68,19 @@ def convert_seconds(seconds):
     return f"{days} days {hours} hours {minutes} minutes"
 
 def main():
-    distance_matrix = argv[1:]  # Get distances from command line arguments
+    input_data = sys.stdin.read()
+    
+    # Sample data:
+    # input_data = "[[0, 20924, 152768, 110588], [21116, 0, 146201, 104021], [153269, 146469, 0, 43370], [111089, 104289, 43514, 0]]"
+    
+    try:
+        distance_matrix = json.loads(input_data)  # Convert the input string to a JSON object
+    except Exception as e:
+        print(f"Error parsing JSON: {str(e)}")
+        return
+
     time, path = tsp_held_karp(distance_matrix)
-    print(convert_seconds(time), path)
+    print(json.dumps((convert_seconds(time), path)))
 
 
 if __name__ == "__main__":
