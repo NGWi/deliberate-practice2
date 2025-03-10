@@ -1,56 +1,68 @@
 import os
 import requests
 import json
+
 def get_coordinates(address, api_key):
     base_url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {
-        "address": address,
-        "key": api_key
-    }
+    params = {"address": address, "key": api_key}
     response = requests.get(base_url, params=params)
     data = response.json()
-    results = data["results"]
-    if len(results) > 0:
-        geometry = results[0]["geometry"]
-        lat = geometry["location"]["lat"]
-        lng = geometry["location"]["lng"]
-        return {"latitude": lat, "longitude": lng}
-    else:
-        return None
+    if data["results"]:
+        location = data["results"][0]["geometry"]["location"]
+        return {"latitude": location["lat"], "longitude": location["lng"]}
+    return None
 
-api_key = os.environ['GM_KEY']  # Replace with your actual API key
-url = f"https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix?key={api_key}"
+def main():
+    api_key = os.environ['GM_KEY']
+    url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Goog-FieldMask": "originIndex,destinationIndex,duration",
+        "X-Goog-Api-Key": api_key
+    }
 
-headers = {
-    "Content-Type": "application/json",
-    "X-Goog-FieldMask": "originIndex,destinationIndex,status,condition,distanceMeters,duration"
-}
+    locations = [
+        "San Francisco, CA",
+        "Los Angeles, CA",
+        "New York, NY",
+        "Chicago, IL"
+    ]
 
-locations = [
-    "San Francisco, CA",
-    "Los Angeles, CA",
-    "New York, NY",
-    "Chicago, IL"
-]
+    # Geocode all locations
+    geocoded = []
+    for loc in locations:
+        coords = get_coordinates(loc, api_key)
+        if coords:
+            geocoded.append({"waypoint": {"location": {"latLng": coords}}})
+        else:
+            print(f"Failed to geocode: {loc}")
+            return
 
-geocoded = []
-for location in locations:
-    geocoded.append({"waypoint": {"location": {"latLng": get_coordinates(location, api_key)}}})
+    # Build payload
+    payload = {
+        "origins": geocoded,
+        "destinations": geocoded,
+        "travelMode": "DRIVE"
+    }
 
+    # Get distance matrix
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    if response.status_code != 200:
+        print(f"API Error: {response.text}")
+        return
 
-payload = {
-    "origins": geocoded,
-    "destinations": geocoded,
-    "travelMode": "DRIVE"
-}
-
-response = requests.post(url, headers=headers, data=json.dumps(payload))
-
-if response.status_code == 200:
     data = response.json()
-    for row in data:
-        print(row)
+    # Initialize matrix with zeros
+    n = len(locations)
+    matrix = [[0] * n for _ in range(n)]
     
-else:
-    print(f"Error: {response.status_code}")
-    print(response.text)
+    # Populate matrix from API response
+    for entry in data:
+        i = entry["originIndex"]
+        j = entry["destinationIndex"]
+        matrix[i][j] = int(entry["duration"][:-1])
+
+    print(json.dumps(matrix))  # Output as JSON for safe parsing
+
+if __name__ == "__main__":
+    main()

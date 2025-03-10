@@ -1,5 +1,5 @@
 from itertools import combinations
-
+import subprocess
 
 # O(n^2*2^n):
 def tsp_held_karp(distances):
@@ -59,23 +59,40 @@ def tsp_held_karp(distances):
 
     return min_total, path
 
+def convert_seconds(seconds):
+    days = seconds // (3600 * 24)
+    seconds = seconds % (3600 * 24)
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    return f"{days} days {hours} hours {minutes} minutes"
 
-if __name__ == "__main__":
+def main():
     # Distance matrix (symmetric)
-    distances = [
-        [0, 10, 15, 20],
-        [10, 0, 35, 25],
-        [15, 35, 0, 30],
-        [20, 25, 30, 0]
-    ]
+    # distances = [
+    #     [0, 10, 15, 20],
+    #     [10, 0, 35, 25],
+    #     [15, 35, 0, 30],
+    #     [20, 25, 30, 0]
+    # ]
 
     # distances = [[0]]
 
     # Run GoogleDistanceMatrix.py to get a distance matrix
-    # import subprocess
-    # output = subprocess.check_output(['python', 'GoogleDistanceMatrix.py'])
-    # distances = eval(output.decode().splitlines()[-1])
+    try:
+        output = subprocess.check_output(
+            ["python", "GoogleDistanceMatrix.py"], 
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
+        # Use eval() instead of json.loads()
+        distances = eval(output.strip())
+        cost, path = tsp_held_karp(distances)
+        print(f"Minimum cost: {convert_seconds(cost)}")
+        print(f"Optimal path: {path}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e.stderr}")
+    except SyntaxError:
+        print("Invalid matrix format")
 
-    cost, path = tsp_held_karp(distances)
-    print("Minimum cost:", cost) if cost is not None else None
-    print("Path:", path) if path is not None else None
+if __name__ == "__main__":
+    main()
