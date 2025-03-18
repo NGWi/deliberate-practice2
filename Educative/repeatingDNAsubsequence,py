@@ -1,0 +1,12 @@
+def findRepeatedDnaSequences(s):
+    subs = s[0:10]
+    once = {subs}
+    found = set()
+    for i in range(11, len(s)):
+        subs = s[i - 10:i]
+        if subs in once:
+            found.add(subs)
+        else:
+            once.add(subs)
+            
+    return list(found)
